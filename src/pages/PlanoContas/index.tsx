@@ -1,0 +1,102 @@
+import { useEffect, useState } from "react";
+import { useParams, useLocation } from "react-router-dom";
+import useQuery from "src/services/useQuery";
+import { PlanoConta } from "src/utils/typings";
+import { Table, Filter, Layout } from "src/components";
+import Form from "./components/Form";
+import getColumns from "./columns";
+
+function PlanoContas() {
+
+  const params = useParams();
+  const location = useLocation();
+  const { getDataByCollection } = useQuery();
+
+  const [planos, setPlanos] = useState<PlanoConta[]>([]);
+  const [planosFilter, setPlanosFilter] = useState<PlanoConta[]>([]);
+  const [editing, setEditing] = useState<boolean>(false);
+  const [showForm, setShowForm] = useState<boolean>(false);
+
+  function orderData(data: any) {
+    return data.sort((a: any, b: any) => a.classificacao.localeCompare(b.classificacao));
+  }
+
+  function buildTree(data: PlanoConta[]) {
+    const map: Record<string, any> = {}
+    const roots: PlanoConta[] = [];
+
+    data.forEach(item => {
+      map[item.id] = {
+        key: item.id,
+        title: item.descricao,
+        ...item,
+      }
+    });
+
+    data.forEach(item => {
+      if (item.referencialId && map[item.referencialId]) {
+        const parent = map[item.referencialId];
+        if (!parent.children) {
+          parent.children = [];
+        }
+        parent.children.push(map[item.id]);
+        return;
+      }
+
+      roots.push(map[item.id]);
+    });
+
+    return roots;
+  }
+  
+  async function getData() {
+    const data = await getDataByCollection<PlanoConta>("planosContas");
+    const orderedData = orderData(data);
+    const treeData = buildTree(orderedData);
+    setPlanos(treeData as PlanoConta[]);
+    setPlanosFilter(treeData as PlanoConta[]);
+  }
+
+  function handleSearch(search: string, key: string) {
+    const data = planos.filter(item => item[key]?.toLowerCase().includes(search.toLowerCase()));
+    setPlanosFilter(search ? data : planos);
+  }
+
+  function reset() {
+    setPlanosFilter(planos);
+  }
+
+  useEffect(() => {
+    if (location.pathname.includes("editar")) {
+      setEditing(true);
+      return;
+    }
+    setEditing(false);
+  }, [location]);
+
+  useEffect(() => {
+    getData();
+  }, [JSON.stringify(params), showForm]);
+
+  return (
+    <Layout>
+      {(params?.id || showForm) ? (
+        <Form
+          id={params?.id || null}
+          editing={editing}
+          setShowForm={setShowForm}
+        />
+      ) : (
+        <>
+          <Filter setShowForm={setShowForm} />
+          <Table
+            columns={getColumns(getData, reset, handleSearch)}
+            data={planosFilter}
+          />
+        </>
+      )}
+    </Layout>
+  );
+}
+
+export default PlanoContas;
