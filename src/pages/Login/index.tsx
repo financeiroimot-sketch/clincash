@@ -25,7 +25,7 @@ function Login() {
       const response = await signInWithEmailAndPassword(auth, values.email, values.password);
       if (response.user.uid) {
         const user = await getUser(response.user.uid);
-        sessionStorage.setItem("clin-cash-permissao", user.permissaoLivroCaixa ? "livro-caixa" : "");
+        sessionStorage.setItem("clin-cash-permissao", user?.permissaoLivroCaixa ? "livro-caixa" : "");
         sessionStorage.setItem("clin-cash-user-email", values.email);
         sessionStorage.setItem("clin-cash-user-uid", response.user.uid);
         hideLoader();
