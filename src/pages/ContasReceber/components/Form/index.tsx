@@ -153,7 +153,7 @@ function Form({ id, setShowForm }: FormProps) {
   }
 
   function handleSetPlanoContas(pessoaId: string) {
-    const pessoa = pessoas.find(item => item.id === pessoaId);
+    const pessoa = pessoas?.find(item => item.id === pessoaId);
     const planoContasId = pessoa?.planoContasId;
     if (planosOptions.some(item => item.value === planoContasId)) {
       form.setFieldValue("planoContasId", planoContasId);

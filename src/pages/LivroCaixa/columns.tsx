@@ -258,7 +258,7 @@ function getColumns(
                   shape="circle"
                   size="large"
                   onClick={handleSave}
-                  disabled={!record.valor}
+                  disabled={!record.valorPagamento}
                 >
                   <SaveOutlined style={{ fontSize: 20 }} />
                 </Button>

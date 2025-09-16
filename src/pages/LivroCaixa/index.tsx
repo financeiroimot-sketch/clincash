@@ -1,15 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Card, Button, Tooltip } from "antd";
-import { LockOutlined, UnlockOutlined } from "@ant-design/icons";
+import { DownloadOutlined, LockOutlined, UnlockOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import { Table, Layout } from "src/components";
 import useQuery from "src/services/useQuery";
 import { Conta, Pessoa, Coluna, PlanoConta, Option } from "src/utils/typings";
 import getColumns from "./columns";
+import exportPDF from "src/utils/exportPDF";
 
 function Empresas() {
 
   const { getDataByCollection, updateData, saveData, getUser } = useQuery();
+  const ref = useRef(null);
 
   const [canEdit, setCanEdit] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -48,7 +50,7 @@ function Empresas() {
 
   async function getData() {
     const usuario = await getUser();
-    setColunasAtivas(usuario.colunasLivroCaixa);
+    setColunasAtivas(usuario?.colunasLivroCaixa);
 
     const [contasPagar, contasReceber, planosContas, pessoas] = await Promise.all([
       getDataByCollection<Conta>("contasPagar"),
@@ -79,14 +81,14 @@ function Empresas() {
   async function handleUpdate() {
     await Promise.all(
       editedIds.map(id => {
-        const conta = contas.find(conta => conta.id === id);
+        const conta = contas?.find(conta => conta.id === id);
         return updateData(id, conta, conta?.tipoConta!);
       })
     );
   }
 
   async function handleSave() {
-    const conta = contas.find(conta => conta.isNew);
+    const conta = contas?.find(conta => conta.isNew);
     if (conta?.isNew && conta.tipoConta) {
       delete conta?.isNew;
       const response = await saveData(conta, conta?.tipoConta);
@@ -148,7 +150,7 @@ function Empresas() {
   }
 
   function handleCheckColumn(columnName: string) {
-    const column = colunasAtivas.find(item => item.coluna === columnName);
+    const column = colunasAtivas?.find(item => item.coluna === columnName);
     return column ? !column.ativo : true;
   }
 
@@ -161,8 +163,18 @@ function Empresas() {
 
   return (
     <Layout>
-      {canEdit && (
-        <Card style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+      <Card style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+        <Tooltip title="Exportar PDF">
+          <Button
+            size="large"
+            onClick={() => exportPDF(ref, "livro-caixa", "Livro Caixa")}
+            icon={<DownloadOutlined style={{ fontSize: 20 }} />}
+            shape="circle"
+            type="primary"
+            style={{ marginRight: 8 }}
+          />
+        </Tooltip>
+        {canEdit && (
           <Tooltip title={isEditing ? "Finalizar edição" : "Editar"}>
             <Button
               type="primary"
@@ -175,51 +187,53 @@ function Empresas() {
               }
             />
           </Tooltip>
-        </Card>
-      )}
-      <Table
-        columns={
-          getColumns(
-            pessoasOptions,
-            planosOptions,
-            reset,
-            handleSave,
-            handleCheckColumn,
-            handleChange,
-            handleSearch,
-          )
-        }
-        data={contasFilter}
-        onRow={(record) => ({
-          onClick: () => {
-            if (isEditing) {
-              handleEdit(record.id);
-            }
+        )}
+      </Card>
+      <div ref={ref}>
+        <Table
+          columns={
+            getColumns(
+              pessoasOptions,
+              planosOptions,
+              reset,
+              handleSave,
+              handleCheckColumn,
+              handleChange,
+              handleSearch,
+            )
           }
-        })}
-        summary={(pageData) => {
-          const { contasPagar, contasReceber } = handleGetTotal(pageData);
-          const saldoFinal = contasReceber - contasPagar;
-          return (
-            <tr>
-              <td colSpan={8}>
-                <TotalContainer>
-                  <div>
-                    <p><Label color="#3b82f6" /> Crédito Total:</p>
-                    <p><Label color="#ef4444" /> Débito Total:</p>
-                    <p><Label color="#22c55e" /> Saldo Final:</p>
-                  </div>
-                  <div>
-                    <p>{formatCurrency(contasReceber)}</p>
-                    <p>{formatCurrency(contasPagar)}</p>
-                    <p>{formatCurrency(saldoFinal)}</p>
-                  </div>
-                </TotalContainer>
-              </td>
-            </tr>
-          );
-        }}
-      />
+          data={contasFilter}
+          onRow={(record) => ({
+            onClick: () => {
+              if (isEditing) {
+                handleEdit(record.id);
+              }
+            }
+          })}
+          summary={(pageData) => {
+            const { contasPagar, contasReceber } = handleGetTotal(pageData);
+            const saldoFinal = contasReceber - contasPagar;
+            return (
+              <tr>
+                <td colSpan={8}>
+                  <TotalContainer>
+                    <div>
+                      <p><Label color="#3b82f6" /> Crédito Total:</p>
+                      <p><Label color="#ef4444" /> Débito Total:</p>
+                      <p><Label color="#22c55e" /> Saldo Final:</p>
+                    </div>
+                    <div>
+                      <p>{formatCurrency(contasReceber)}</p>
+                      <p>{formatCurrency(contasPagar)}</p>
+                      <p>{formatCurrency(saldoFinal)}</p>
+                    </div>
+                  </TotalContainer>
+                </td>
+              </tr>
+            );
+          }}
+        />
+      </div>
     </Layout>
   );
 }

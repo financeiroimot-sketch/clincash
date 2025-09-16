@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import { Card, DatePicker, Button } from "antd";
+import { useState, useEffect, useRef } from "react";
+import { Card, DatePicker, Button, Tooltip as AntdTooltip } from "antd";
+import { DownloadOutlined, SearchOutlined } from "@ant-design/icons";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import {
   CategoryScale,
@@ -12,10 +13,11 @@ import CardsContas from "./components/CardsContas";
 import FaturamentoCliente from "./components/FaturamentoCliente";
 import InadimplenciaCliente from "./components/InadimplenciaCliente";
 import InadimplenciaFornecedor from "./components/InadimplenciaFornecedor";
-import Tabelas from "./components/Tabelas";
+import TabelaPessoas from "./components/TabelaPessoas";
+import TabelaPlanos from "./components/TabelaPlanos";
 import useQuery from "src/services/useQuery";
 import { Conta, Pessoa, PlanoConta } from "src/utils/typings";
-import { SearchOutlined } from "@ant-design/icons";
+import exportPDF from "src/utils/exportPDF";
 
 ChartJS.register(
   ArcElement,
@@ -32,6 +34,7 @@ const { RangePicker } = DatePicker;
 function Dashboard() {
 
   const { getDataByCollection } = useQuery();
+  const ref = useRef(null);
 
   const [periodoInicio, setPeriodoInicio] = useState<string>();
   const [periodoFim, setPeriodoFim] = useState<string>();
@@ -96,26 +99,44 @@ function Dashboard() {
         <Button
           type="primary"
           size="large"
+          shape="circle"
           icon={<SearchOutlined />}
           onClick={getData}
-          style={{ marginLeft: 8 }}
+          style={{ marginLeft: 8, marginRight: 8 }}
         />
+        <AntdTooltip title="Exportar PDF">
+          <Button
+            size="large"
+            onClick={() => exportPDF(ref, "dashboard", "Dashboard")}
+            icon={<DownloadOutlined style={{ fontSize: 20 }} />}
+            shape="circle"
+            type="primary"
+            style={{ marginRight: 8 }}
+          />
+        </AntdTooltip>
       </Card>
 
-      <CardsContas
-        contasReceber={contasReceber}
-        contasPagar={contasPagar}
-      />
+      <div ref={ref}>
+        <CardsContas
+          contasReceber={contasReceber}
+          contasPagar={contasPagar}
+        />
 
-      <Tabelas
-        contas={[...contasPagar, ...contasReceber]}
-        pessoas={pessoas}
-        planosContas={planosContas}
-      />
+        <TabelaPessoas
+          contas={[...contasPagar, ...contasReceber]}
+          pessoas={pessoas}
+        />
 
-      <FaturamentoCliente contasReceber={contasReceber} pessoas={pessoas} />
-      <InadimplenciaCliente contasReceber={contasReceber} pessoas={pessoas} />
-      <InadimplenciaFornecedor contasPagar={contasPagar} pessoas={pessoas} />
+        <TabelaPlanos
+          contasPagar={contasPagar}
+          contasReceber={contasReceber}
+          planosContas={planosContas}
+        />
+
+        <FaturamentoCliente contasReceber={contasReceber} pessoas={pessoas} />
+        <InadimplenciaCliente contasReceber={contasReceber} pessoas={pessoas} />
+        <InadimplenciaFornecedor contasPagar={contasPagar} pessoas={pessoas} />
+      </div>
     </div>
   );
 }

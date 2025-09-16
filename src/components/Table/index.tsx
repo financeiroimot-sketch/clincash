@@ -16,7 +16,10 @@ function Table({ data, columns, ...props }: TableProps) {
         triggerDesc: "Ordem Decrescente",
         triggerAsc: "Ordem Crescente",
       }}
-      pagination={{ pageSize: 200 }}
+      pagination={{
+        pageSize: 300,
+        className: "hide-on-pdf",
+      }}
       dataSource={data}
       columns={columns}
       scroll={{ x: true }}

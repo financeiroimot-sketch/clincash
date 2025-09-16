@@ -281,6 +281,7 @@ function getColummns(
       dataIndex: "id",
       key: "id",
       align: "center",
+      className: "hide-on-pdf",
       render: (value: string, record: Conta) => (
         <Actions
           id={value}

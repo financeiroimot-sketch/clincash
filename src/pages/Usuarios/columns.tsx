@@ -13,7 +13,7 @@ function getColumns(
       dataIndex: "nome",
       key: "nome",
       render: (value: string) => <span>{value ?? "-"}</span>,
-      sorter: (a: Usuario, b: Usuario) => a.nome.localeCompare(b.nome),
+      sorter: (a: Usuario, b: Usuario) => a?.nome?.localeCompare(b?.nome),
       sortDirections: ["ascend", "descend", "ascend"],
       defaultSortOrder: "ascend",
       filterDropdown: ({ setSelectedKeys, selectedKeys, close }) => (
@@ -60,7 +60,7 @@ function getColumns(
       dataIndex: "email",
       key: "email",
       render: (value: string) => <span>{value ?? "-"}</span>,
-      sorter: (a: Usuario, b: Usuario) => a.email.localeCompare(b.email),
+      sorter: (a: Usuario, b: Usuario) => a?.email?.localeCompare(b?.email),
       sortDirections: ["ascend", "descend", "ascend"],
       defaultSortOrder: "ascend",
       filterDropdown: ({ setSelectedKeys, selectedKeys, close }) => (

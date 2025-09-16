@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { Button, Card, Tooltip } from "antd";
+import { DownloadOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import useQuery from "src/services/useQuery";
@@ -6,11 +8,13 @@ import { Conta, Coluna, PlanoConta, Pessoa } from "src/utils/typings";
 import { Table, Filter, Layout } from "src/components";
 import Form from "./components/Form";
 import getColumns from "./columns";
+import exportPDF from "src/utils/exportPDF";
 
 function ContasPagar() {
 
   const params = useParams();
   const { getDataByCollection, getUser } = useQuery();
+  const ref = useRef(null);
 
   const [contas, setContas] = useState<Conta[]>([]);
   const [contasFilter, setContasFilter] = useState<Conta[]>([]);
@@ -34,7 +38,7 @@ function ContasPagar() {
 
   async function getData() {
     const usuario = await getUser();
-    setColunasAtivas(usuario.colunasContasPagar);
+    setColunasAtivas(usuario?.colunasContasPagar);
 
     const [contasPagar, planosContas, pessoas] = await Promise.all([
       getDataByCollection<Conta>("contasPagar"),
@@ -42,8 +46,8 @@ function ContasPagar() {
       getDataByCollection<Pessoa>("pessoas"),
     ]);
     const data = contasPagar.map((item: any) => {
-      const planoContas = planosContas.find(plano => plano.id === item?.planoContasId);
-      const pessoa = pessoas.find(pessoa => pessoa.id === item?.razaoSocial);
+      const planoContas = planosContas?.find(plano => plano.id === item?.planoContasId);
+      const pessoa = pessoas?.find(pessoa => pessoa.id === item?.razaoSocial);
       const planoContasDescricao = planoContas?.descricao;
       const razaoSocialDescricao = pessoa?.razaoSocial;
       const statusVencimento = getStatusVencimento(item);
@@ -63,7 +67,7 @@ function ContasPagar() {
   }
 
   function handleCheckColumn(columnName: string) {
-    const column = colunasAtivas.find(item => item.coluna === columnName);
+    const column = colunasAtivas?.find(item => item.coluna === columnName);
     return column ? !column.ativo : true;
   }
 
@@ -81,10 +85,25 @@ function ContasPagar() {
       ) : (
         <>
           <Filter setShowForm={setShowForm} />
-          <Table
-            columns={getColumns(getData, reset, handleCheckColumn, handleSearch)}
-            data={contasFilter}
-          />
+
+          <Card style={{ marginBottom: 8, justifyContent: "flex-end", display: "flex" }}>
+            <Tooltip title="Exportar PDF">
+              <Button
+                size="large"
+                onClick={() => exportPDF(ref, "contas-pagar", "Contas a Pagar")}
+                icon={<DownloadOutlined style={{ fontSize: 20 }} />}
+                shape="circle"
+                type="primary"
+              />
+            </Tooltip>
+          </Card>
+
+          <div ref={ref}>
+            <Table
+              columns={getColumns(getData, reset, handleCheckColumn, handleSearch)}
+              data={contasFilter}
+            />
+          </div>
         </>
       )}
     </Layout>

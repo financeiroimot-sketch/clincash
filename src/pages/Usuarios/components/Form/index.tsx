@@ -39,21 +39,21 @@ function Form({ id, setShowForm }: FormProps) {
     const data = await getDataById(id!, "usuarios");
     const usuario = data as Usuario;
     if (data) {
-      const dataCadastro = usuario.dataCadastro ? dayjs(usuario.dataCadastro, "DD/MM/YYYY") : dayjs();
+      const dataCadastro = usuario?.dataCadastro ? dayjs(usuario?.dataCadastro, "DD/MM/YYYY") : dayjs();
       form.setFieldsValue({ ...usuario, dataCadastro });
 
       setColunasContasPagar(contasPagar.map(item => {
-        const colunaUsuario = usuario.colunasContasPagar.find(c => c.coluna === item.coluna);
+        const colunaUsuario = usuario?.colunasContasPagar?.find(c => c.coluna === item.coluna);
         return colunaUsuario || item;
       }));
 
       setColunasContasReceber(contasReceber.map(item => {
-        const colunaUsuario = usuario.colunasContasReceber.find(c => c.coluna === item.coluna);
+        const colunaUsuario = usuario?.colunasContasReceber?.find(c => c.coluna === item.coluna);
         return colunaUsuario || item;
       }));
 
       setColunasLivroCaixa(livroCaixa.map(item => {
-        const colunaUsuario = usuario.colunasLivroCaixa.find(c => c.coluna === item.coluna);
+        const colunaUsuario = usuario?.colunasLivroCaixa?.find(c => c.coluna === item.coluna);
         return colunaUsuario || item;
       }));
     }

@@ -61,14 +61,14 @@ function Form({ id, editing, setShowForm }: FormProps) {
     if (!id) {
       return 1;
     }
-    const parent = planosContas.find(item => item.id === id);
+    const parent = planosContas?.find(item => item.id === id);
     const level = parent.nivel + 1;
     return level;
   }
 
   function getClassification() {
     if (!id) {
-      const level1Plans = planosContas.filter(item => item.nivel === 1);
+      const level1Plans = planosContas?.filter(item => item.nivel === 1);
       if (level1Plans?.length === 0) {
         return "01";
       }
