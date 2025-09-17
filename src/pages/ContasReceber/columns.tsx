@@ -74,7 +74,7 @@ function getColummns(
       title: "Status de Vencimento",
       dataIndex: "statusVencimento",
       key: "statusVencimento",
-      width: 240,
+      width: 200,
       hidden: handleCheckColumn("Status de Vencimento"),
       render: (value: string, record: Conta) => <span>{formatStatusVencimento(value, record.statusVencimentoCor)}</span>,
       filters: [

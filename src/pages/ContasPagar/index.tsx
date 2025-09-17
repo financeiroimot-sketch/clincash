@@ -8,7 +8,7 @@ import { Conta, Coluna, PlanoConta, Pessoa } from "src/utils/typings";
 import { Table, Filter, Layout } from "src/components";
 import Form from "./components/Form";
 import getColumns from "./columns";
-import exportPDF from "src/utils/exportPDF";
+import exportPDFSimple from "src/utils/exportPDFSimple";
 
 function ContasPagar() {
 
@@ -90,7 +90,7 @@ function ContasPagar() {
             <Tooltip title="Exportar PDF">
               <Button
                 size="large"
-                onClick={() => exportPDF(ref, "contas-pagar", "Contas a Pagar")}
+                onClick={() => exportPDFSimple(ref, "contas-pagar", "Contas a Pagar")}
                 icon={<DownloadOutlined style={{ fontSize: 20 }} />}
                 shape="circle"
                 type="primary"

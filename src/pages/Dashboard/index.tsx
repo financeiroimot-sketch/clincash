@@ -62,18 +62,18 @@ function Dashboard() {
         const data = moment(item.dataVencimento, "DD/MM/YYYY");
         return data.isBetween(inicio, fim);
       });
-      setContasReceber(receber);
+      setContasReceber(receber.map(item => ({ ...item, tipoConta: "contasReceber" })));
 
       const pagar = contasPagar.filter(item => {
         const data = moment(item.dataVencimento, "DD/MM/YYYY");
         return data.isBetween(inicio, fim);
       });
-      setContasPagar(pagar);
+      setContasPagar(pagar.map(item => ({ ...item, tipoConta: "contasPagar" })));
       return;
     }
 
-    setContasReceber(contasReceber);
-    setContasPagar(contasPagar);
+    setContasReceber(contasReceber.map(item => ({ ...item, tipoConta: "contasReceber" })));
+    setContasPagar(contasPagar.map(item => ({ ...item, tipoConta: "contasPagar" })));
   }
 
   function handleSetDates(dates: any) {
