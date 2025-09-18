@@ -57,10 +57,7 @@ function ContasPagar() {
         return false;
       }
 
-      if (
-        (filters.planoContasDescricao?.length && item.planoContasDescricao && !filters.planoContasDescricao.includes(item.planoContasDescricao))
-        || !item.planoContasDescricao
-      ) {
+      if (filters.planoContasDescricao?.length && !filters.planoContasDescricao.includes(item.planoContasDescricao!)) {
         return false;
       }
 
@@ -111,8 +108,6 @@ function ContasPagar() {
 
     const contasPagar = await getDataByCollection<Conta>("contasPagar");
 
-    setFilters(filters);
-
     const data = contasPagar.map((item: any) => {
       const planoContas = planosContas?.find(plano => plano.id === item?.planoContasId);
       const pessoa = pessoas?.find(pessoa => pessoa.id === item?.razaoSocial);
@@ -125,6 +120,7 @@ function ContasPagar() {
     if (filters) {
       const result = handleFilter(data, filters);
       setSearched(true);
+      setFilters(filters);
       setContas(result as Conta[]);
       setContasFilter(result as Conta[]);
       return;
@@ -152,6 +148,9 @@ function ContasPagar() {
   useEffect(() => {
     setSearched(false);
     getOptions();
+    if (searched) {
+      getData(filters);
+    }
   }, [JSON.stringify(params), showForm]);
 
   return (
@@ -169,6 +168,7 @@ function ContasPagar() {
             planosOptions={planosOptions}
             pessoasOptions={pessoasOptions}
             submit={getData}
+            defaultFilters={filters}
             exportButton={
               <Tooltip title="Exportar PDF">
                 <Button
@@ -176,6 +176,7 @@ function ContasPagar() {
                   onClick={() => exportPDF(ref, "contas-pagar", "Contas a Pagar", filters)}
                   icon={<ExportOutlined />}
                   disabled={!searched}
+                  style={{ width: "100%" }}
                 >
                   Exportar
                 </Button>

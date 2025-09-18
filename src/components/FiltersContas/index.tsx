@@ -36,6 +36,7 @@ interface FiltersContasProps {
   planosOptions: Option[];
   pessoasOptions: Option[];
   exportButton?: ReactNode;
+  defaultFilters?: ContasFilter;
   submit: (args: ContasFilter | undefined) => void;
 }
 
@@ -43,9 +44,10 @@ function FiltersContas({
   planosOptions,
   pessoasOptions,
   exportButton,
+  defaultFilters,
   submit,
 }: FiltersContasProps) {
-  const [filters, setFilters] = useState<ContasFilter>();
+  const [filters, setFilters] = useState<ContasFilter | undefined>(defaultFilters);
   const [expanded, setExpanded] = useState(true);
 
   const [appliedTags, setAppliedTags] = useState<
@@ -162,7 +164,7 @@ function FiltersContas({
   }
 
   function limparFiltros() {
-    setFilters({});
+    setFilters(undefined);
     setAppliedTags([]);
   }
 
@@ -182,7 +184,7 @@ function FiltersContas({
     >
       {expanded && (
         <>
-          <Row gutter={[16, 16]}>
+          <Row gutter={[8, 8]}>
             <Col xs={24} sm={12} md={6}>
               <Select
                 allowClear
@@ -250,7 +252,7 @@ function FiltersContas({
             </Col>
           </Row>
 
-          <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+          <Row gutter={[8, 8]} style={{ marginTop: 16 }}>
             <Col xs={24} sm={12} md={8}>
               <RangePicker
                 allowClear
@@ -262,7 +264,7 @@ function FiltersContas({
               />
             </Col>
 
-            <Col xs={24} sm={12} md={8}>
+            <Col xs={24} sm={12} md={7}>
               <RangePicker
                 allowClear
                 size="large"
@@ -273,21 +275,31 @@ function FiltersContas({
               />
             </Col>
 
-            <Col xs={24} sm={24} md={8}>
-              <Space style={{ float: "right", gap: 6 }}>
-                <Button onClick={limparFiltros} icon={<ReloadOutlined />} size="large">
-                  Limpar
-                </Button>
-                <Button
-                  type="primary"
-                  icon={<SearchOutlined />}
-                  size="large"
-                  onClick={aplicarFiltros}
-                >
-                  Aplicar Filtros
-                </Button>
-                {exportButton}
-              </Space>
+            <Col xs={24} sm={24} md={3}>
+              <Button
+                onClick={limparFiltros}
+                icon={<ReloadOutlined />}
+                size="large"
+                style={{ width: "100%" }}
+              >
+                Limpar
+              </Button>
+            </Col>
+
+            <Col xs={24} sm={24} md={3}>
+              <Button
+                type="primary"
+                icon={<SearchOutlined />}
+                size="large"
+                onClick={aplicarFiltros}
+                style={{ width: "100%" }}
+              >
+                Buscar
+              </Button>
+            </Col>
+
+            <Col xs={24} sm={24} md={3}>
+              {exportButton}
             </Col>
           </Row>
 
