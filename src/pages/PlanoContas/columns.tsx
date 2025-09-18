@@ -2,10 +2,7 @@ import { Button, Input, Space, } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import Actions from "./components/Actions";
 import { PlanoConta } from "src/utils/typings";
-
-function formatNatureza(value: string) {
-  return value === "sintetica" ? "Sintética" : "Analítica";
-}
+import formatNatureza from "src/utils/formatNatureza";
 
 const getColumns = (
   refetch: () => void,

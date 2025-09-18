@@ -1,18 +1,25 @@
-import { useEffect, useState, useRef } from "react";
-import { Card, Button, Tooltip } from "antd";
-import { DownloadOutlined, LockOutlined, UnlockOutlined } from "@ant-design/icons";
+import { useState, useRef } from "react";
+import { Card, Button, Tooltip, DatePicker } from "antd";
+import { DownloadOutlined, LockOutlined, SearchOutlined, UnlockOutlined } from "@ant-design/icons";
 import styled from "styled-components";
+import moment from "moment";
 import { Table, Layout } from "src/components";
 import useQuery from "src/services/useQuery";
 import { Conta, Pessoa, Coluna, PlanoConta, Option } from "src/utils/typings";
 import getColumns from "./columns";
-import exportPDF from "src/utils/exportPDF";
+import exportPDF from "src/utils/exportPDFLivroCaixa";
+import formatCurrency from "src/utils/formatCurrency";
+
+const { RangePicker } = DatePicker;
 
 function Empresas() {
 
   const { getDataByCollection, updateData, saveData, getUser } = useQuery();
   const ref = useRef(null);
 
+  const [searched, setSearched] = useState<boolean>(false);
+  const [periodoInicio, setPeriodoInicio] = useState<string>();
+  const [periodoFim, setPeriodoFim] = useState<string>();
   const [canEdit, setCanEdit] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [contas, setContas] = useState<Conta[]>([]);
@@ -22,23 +29,22 @@ function Empresas() {
   const [editedIds, setEditedIds] = useState<string[]>([]);
   const [colunasAtivas, setColunasAtivas] = useState<Coluna[]>([]);
 
-  function getPermissaoLivroCaixa() {
-    const permissao = sessionStorage.getItem("clin-cash-permissao");
-    setCanEdit(permissao === "livro-caixa");
+  async function getSettings() {
+    const usuario = await getUser();
+    setCanEdit(usuario?.permissaoLivroCaixa ?? false);
+    setColunasAtivas(usuario?.colunasLivroCaixa);
   }
 
-  async function getPessoas() {
-    const data = await getDataByCollection<Pessoa>("pessoas");
-    const dataOrdered = data?.sort((a, b) => a.razaoSocial.localeCompare(b.razaoSocial));
-    const options = dataOrdered?.map(item => ({ value: item.id, label: item.razaoSocial }));
+  async function setPessoas(pessoas: Pessoa[]) {
+    const ordered = pessoas?.sort((a, b) => a.razaoSocial.localeCompare(b.razaoSocial));
+    const options = ordered?.map(item => ({ value: item.id, label: item.razaoSocial }));
     setPessoasOptions(options);
   }
 
-  async function getPlanosContas() {
-    const data = await getDataByCollection<PlanoConta>("planosContas");
-    const dataFiltered = data?.filter(item => item?.tipoConta === "despesa");
-    const dataOrdered = dataFiltered?.sort((a, b) => a.classificacao.localeCompare(b?.classificacao));
-    const options = dataOrdered?.map(item => (
+  async function setPlanosContas(planosContas: PlanoConta[]) {
+    const filtered = planosContas?.filter(item => item?.tipoConta === "despesa");
+    const ordered = filtered?.sort((a, b) => a.classificacao.localeCompare(b?.classificacao));
+    const options = ordered?.map(item => (
       {
         disabled: item.natureza === "sintetica",
         value: item.id,
@@ -49,33 +55,44 @@ function Empresas() {
   }
 
   async function getData() {
-    const usuario = await getUser();
-    setColunasAtivas(usuario?.colunasLivroCaixa);
+    if (periodoInicio && periodoFim) {
+      await getSettings();
 
-    const [contasPagar, contasReceber, planosContas, pessoas] = await Promise.all([
-      getDataByCollection<Conta>("contasPagar"),
-      getDataByCollection<Conta>("contasReceber"),
-      getDataByCollection<PlanoConta>("planosContas"),
-      getDataByCollection<Pessoa>("pessoas"),
-    ]);
-    const tipoContaPagar = contasPagar?.map(item => ({ ...item, tipoConta: "contasPagar", editing: false }));
-    const tipoContaReceber = contasReceber?.map(item => ({ ...item, tipoConta: "contasReceber", editing: false }));
-    const data = [...tipoContaPagar as Conta[], ...tipoContaReceber as Conta[]]
-      ?.filter(item => item.statusPagamento === "pago")
-      ?.map(item => {
-        const planoContas = planosContas?.find(plano => plano.id === item?.planoContasId);
-        const pessoa = pessoas?.find(pessoas => pessoas.id === item?.razaoSocial);
-        const planoContasDescricao = planoContas?.descricao;
-        const razaoSocialDescricao = pessoa?.razaoSocial;
-        return { ...item, planoContasDescricao, razaoSocialDescricao }
-      });
-    setContas(data as Conta[]);
-    setContasFilter(data as Conta[]);
-  }
+      const [contasPagar, contasReceber, planosContas, pessoas] = await Promise.all([
+        getDataByCollection<Conta>("contasPagar"),
+        getDataByCollection<Conta>("contasReceber"),
+        getDataByCollection<PlanoConta>("planosContas"),
+        getDataByCollection<Pessoa>("pessoas"),
+      ]);
 
-  function handleSearch(search: string, key: string) {
-    const data = contas.filter(item => item[key]?.toLowerCase().includes(search.toLowerCase()));
-    setContasFilter(search ? data : contas);
+      setPessoas(pessoas);
+      setPlanosContas(planosContas);
+
+      const inicio = moment(periodoInicio, "DD/MM/YYYY");
+      const fim = moment(periodoFim, "DD/MM/YYYY");
+
+      const tipoContaPagar = contasPagar
+        .filter(item => moment(item.dataVencimento, "DD/MM/YYYY").isBetween(inicio, fim))
+        .map(item => ({ ...item, tipoConta: "contasPagar", editing: false }));
+
+      const tipoContaReceber = contasReceber
+        .filter(item => moment(item.dataVencimento, "DD/MM/YYYY").isBetween(inicio, fim))
+        .map(item => ({ ...item, tipoConta: "contasReceber", editing: false }));
+
+      const data = [...tipoContaPagar, ...tipoContaReceber]
+        .filter(item => item.statusPagamento === "pago")
+        .map(item => {
+          const planoContas = planosContas.find(plano => plano.id === item?.planoContasId);
+          const pessoa = pessoas.find(pessoas => pessoas.id === item?.razaoSocial);
+          const planoContasDescricao = planoContas?.descricao;
+          const razaoSocialDescricao = pessoa?.razaoSocial;
+          return { ...item, planoContasDescricao, razaoSocialDescricao }
+        });
+
+      setContas(data as Conta[]);
+      setContasFilter(data as Conta[]);
+      setSearched(true);
+    }
   }
 
   async function handleUpdate() {
@@ -141,8 +158,9 @@ function Empresas() {
     }, { contasPagar: 0, contasReceber: 0 });
   }
 
-  function formatCurrency(value: number) {
-    return value.toLocaleString("pt-br", { style: "currency", currency: "BRL" });
+  function handleSearch(search: string, key: string) {
+    const data = contas.filter(item => item[key]?.toLowerCase().includes(search.toLowerCase()));
+    setContasFilter(search ? data : contas);
   }
 
   function reset() {
@@ -154,24 +172,46 @@ function Empresas() {
     return column ? !column.ativo : true;
   }
 
-  useEffect(() => {
-    getPermissaoLivroCaixa();
-    getPessoas();
-    getPlanosContas();
-    getData();
-  }, []);
+  function handleSetDates(dates: any) {
+    const [startDate, endDate] = dates;
+    const start = moment(new Date(startDate)).format("DD/MM/YYYY");
+    const end = moment(new Date(endDate)).format("DD/MM/YYYY");
+    setPeriodoInicio(start);
+    setPeriodoFim(end);
+  }
 
   return (
     <Layout>
-      <Card style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+      <Card style={{ display: "flex", marginBottom: 16 }}>
+        <RangePicker
+          size="large"
+          format="DD/MM/YYYY"
+          onChange={handleSetDates}
+          style={{ width: 250 }}
+        />
+        <Button
+          type="primary"
+          size="large"
+          shape="circle"
+          icon={<SearchOutlined />}
+          onClick={getData}
+          style={{ marginLeft: 8 }}
+          disabled={!periodoInicio || !periodoFim}
+        />
         <Tooltip title="Exportar PDF">
           <Button
             size="large"
-            onClick={() => exportPDF(ref, "livro-caixa", "Livro Caixa")}
+            onClick={() => exportPDF(
+              ref,
+              "livro-caixa",
+              "Livro Caixa",
+              `${periodoInicio} a ${periodoFim}`
+            )}
             icon={<DownloadOutlined style={{ fontSize: 20 }} />}
             shape="circle"
             type="primary"
-            style={{ marginRight: 8 }}
+            style={{ marginLeft: 8, marginRight: 8 }}
+            disabled={!searched}
           />
         </Tooltip>
         {canEdit && (
@@ -181,6 +221,7 @@ function Empresas() {
               shape="circle"
               size="large"
               onClick={handleSetEditing}
+              disabled={!searched}
               icon={isEditing
                 ? <UnlockOutlined style={{ fontSize: 22 }} />
                 : <LockOutlined style={{ fontSize: 22 }} />
@@ -189,51 +230,54 @@ function Empresas() {
           </Tooltip>
         )}
       </Card>
-      <div ref={ref}>
-        <Table
-          columns={
-            getColumns(
-              pessoasOptions,
-              planosOptions,
-              reset,
-              handleSave,
-              handleCheckColumn,
-              handleChange,
-              handleSearch,
-            )
-          }
-          data={contasFilter}
-          onRow={(record) => ({
-            onClick: () => {
-              if (isEditing) {
-                handleEdit(record.id);
-              }
+
+      {searched && (
+        <div ref={ref}>
+          <Table
+            columns={
+              getColumns(
+                pessoasOptions,
+                planosOptions,
+                reset,
+                handleSave,
+                handleCheckColumn,
+                handleChange,
+                handleSearch,
+              )
             }
-          })}
-          summary={(pageData) => {
-            const { contasPagar, contasReceber } = handleGetTotal(pageData);
-            const saldoFinal = contasReceber - contasPagar;
-            return (
-              <tr>
-                <td colSpan={8}>
-                  <TotalContainer>
-                    <div>
-                      <p><Label color="#3b82f6" /> Crédito Total:</p>
-                      <p><Label color="#ef4444" /> Débito Total:</p>
-                      <p><Label color="#22c55e" /> Saldo Final:</p>
-                    </div>
-                    <div>
-                      <p>{formatCurrency(contasReceber)}</p>
-                      <p>{formatCurrency(contasPagar)}</p>
-                      <p>{formatCurrency(saldoFinal)}</p>
-                    </div>
-                  </TotalContainer>
-                </td>
-              </tr>
-            );
-          }}
-        />
-      </div>
+            data={contasFilter}
+            onRow={(record) => ({
+              onClick: () => {
+                if (isEditing) {
+                  handleEdit(record.id);
+                }
+              }
+            })}
+            summary={(pageData) => {
+              const { contasPagar, contasReceber } = handleGetTotal(pageData);
+              const saldoFinal = contasReceber - contasPagar;
+              return (
+                <tr>
+                  <td colSpan={8}>
+                    <TotalContainer>
+                      <div>
+                        <p><Label color="#3b82f6" /> Crédito Total:</p>
+                        <p><Label color="#ef4444" /> Débito Total:</p>
+                        <p><Label color="#22c55e" /> Saldo Final:</p>
+                      </div>
+                      <div>
+                        <p>{formatCurrency(contasReceber)}</p>
+                        <p>{formatCurrency(contasPagar)}</p>
+                        <p>{formatCurrency(saldoFinal)}</p>
+                      </div>
+                    </TotalContainer>
+                  </td>
+                </tr>
+              );
+            }}
+          />
+        </div>
+      )}
     </Layout>
   );
 }

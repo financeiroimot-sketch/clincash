@@ -31,7 +31,7 @@ export interface ContaSimples {
 
 export interface PlanoConta {
   id: string;
-  descricao?: string;
+  descricao: string;
   natureza: string;
   tipoConta: "receita" | "despesa";
   ativo?: boolean;
@@ -93,6 +93,17 @@ export interface Option {
 export interface ValorPorPessoa {
   pessoa: string;
   total: number;
+}
+
+export interface ContasFilter {
+  statusVencimento?: StatusVencimento;
+  statusPagamento?: StatusPagamento;
+  razaoSocialDescricao?: string[];
+  planoContasDescricao?: string[];
+  dataVencimentoInicial?: string;
+  dataVencimentoFinal?: string;
+  dataPagamentoInicial?: string;
+  dataPagamentoFinal?: string;
 }
 
 export type TipoConta = "contasPagar" | "contasReceber";

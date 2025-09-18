@@ -1,5 +1,6 @@
 import { Card, Col, Row } from "antd";
 import { Conta } from "src/utils/typings";
+import formatCurrency from "src/utils/formatCurrency";
 
 interface CardsContasProps {
   contasReceber: Conta[];
@@ -12,10 +13,6 @@ function CardsContas({ contasReceber, contasPagar }: CardsContasProps) {
   const contasReceberPlanejado = contasReceber.reduce((acc, conta) => acc += conta.valor ?? 0, 0);
   const contasPagarRealizado = contasPagar.reduce((acc, conta) => acc += conta.valorPagamento ?? 0, 0);
   const contasPagarPlanejado = contasPagar.reduce((acc, conta) => acc += conta.valor ?? 0, 0);
-
-  function formatCurrency(value: number) {
-    return value.toLocaleString("pt-br", { style: "currency", currency: "BRL" });
-  }
 
   return (
     <Row gutter={[16, 16]}>

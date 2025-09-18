@@ -2,12 +2,9 @@ import { Button, Input, Space, DatePicker } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import { Data } from ".";
+import formatCurrency from "src/utils/formatCurrency";
 
 const { RangePicker } = DatePicker;
-
-function formatCurrency(value: number) {
-  return value.toLocaleString("pt-br", { style: "currency", currency: "BRL" });
-}
 
 function getColumns(
   reset: () => void,
@@ -64,6 +61,17 @@ function getColumns(
       dataIndex: "tipoConta",
       key: "tipoConta",
       render: (value: string) => <span>{value === "contasPagar" ? "A Pagar" : "A Receber"}</span>,
+      filters: [
+      {
+        text: "A Pagar",
+        value: "contasPagar",
+      },
+      {
+        text: "A Receber",
+        value: "contasReceber",
+      },
+    ],
+    onFilter: (value: string, record: Data) => record.tipoConta === value,
     },
     {
       title: "Data",

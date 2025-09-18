@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { Card, DatePicker, Button, Tooltip as AntdTooltip } from "antd";
 import { DownloadOutlined, SearchOutlined } from "@ant-design/icons";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
@@ -17,7 +17,7 @@ import TabelaPessoas from "./components/TabelaPessoas";
 import TabelaPlanos from "./components/TabelaPlanos";
 import useQuery from "src/services/useQuery";
 import { Conta, Pessoa, PlanoConta } from "src/utils/typings";
-import exportPDF from "src/utils/exportPDF";
+import exportPDF from "src/utils/exportPDFDashboard";
 
 ChartJS.register(
   ArcElement,
@@ -36,6 +36,7 @@ function Dashboard() {
   const { getDataByCollection } = useQuery();
   const ref = useRef(null);
 
+  const [searched, setSearched] = useState<boolean>(false);
   const [periodoInicio, setPeriodoInicio] = useState<string>();
   const [periodoFim, setPeriodoFim] = useState<string>();
   const [contasReceber, setContasReceber] = useState<Conta[]>([]);
@@ -44,17 +45,17 @@ function Dashboard() {
   const [planosContas, setPlanosContas] = useState<PlanoConta[]>([]);
 
   async function getData() {
-    const [contasPagar, contasReceber, planosContas, pessoas] = await Promise.all([
-      getDataByCollection<Conta>("contasPagar"),
-      getDataByCollection<Conta>("contasReceber"),
-      getDataByCollection<PlanoConta>("planosContas"),
-      getDataByCollection<Pessoa>("pessoas"),
-    ]);
-
-    setPlanosContas(planosContas);
-    setPessoas(pessoas);
-
     if (periodoInicio && periodoFim) {
+      const [contasPagar, contasReceber, planosContas, pessoas] = await Promise.all([
+        getDataByCollection<Conta>("contasPagar"),
+        getDataByCollection<Conta>("contasReceber"),
+        getDataByCollection<PlanoConta>("planosContas"),
+        getDataByCollection<Pessoa>("pessoas"),
+      ]);
+
+      setPlanosContas(planosContas);
+      setPessoas(pessoas);
+
       const inicio = moment(periodoInicio, "DD/MM/YYYY");
       const fim = moment(periodoFim, "DD/MM/YYYY");
 
@@ -69,11 +70,8 @@ function Dashboard() {
         return data.isBetween(inicio, fim);
       });
       setContasPagar(pagar.map(item => ({ ...item, tipoConta: "contasPagar" })));
-      return;
+      setSearched(true);
     }
-
-    setContasReceber(contasReceber.map(item => ({ ...item, tipoConta: "contasReceber" })));
-    setContasPagar(contasPagar.map(item => ({ ...item, tipoConta: "contasPagar" })));
   }
 
   function handleSetDates(dates: any) {
@@ -84,10 +82,6 @@ function Dashboard() {
     setPeriodoFim(end);
   }
 
-  useEffect(() => {
-    getData();
-  }, []);
-
   return (
     <div>
       <Card style={{ marginBottom: 16 }}>
@@ -95,6 +89,7 @@ function Dashboard() {
           size="large"
           format="DD/MM/YYYY"
           onChange={handleSetDates}
+          style={{ width: 250 }}
         />
         <Button
           type="primary"
@@ -103,40 +98,49 @@ function Dashboard() {
           icon={<SearchOutlined />}
           onClick={getData}
           style={{ marginLeft: 8, marginRight: 8 }}
+          disabled={!periodoInicio || !periodoFim}
         />
         <AntdTooltip title="Exportar PDF">
           <Button
             size="large"
-            onClick={() => exportPDF(ref, "dashboard", "Dashboard")}
+            onClick={() => exportPDF(
+              ref,
+              "dashboard",
+              "Dashboard",
+              `${periodoInicio} a ${periodoFim}`,
+            )}
             icon={<DownloadOutlined style={{ fontSize: 20 }} />}
             shape="circle"
             type="primary"
             style={{ marginRight: 8 }}
+            disabled={!searched}
           />
         </AntdTooltip>
       </Card>
 
-      <div ref={ref}>
-        <CardsContas
-          contasReceber={contasReceber}
-          contasPagar={contasPagar}
-        />
+      {searched && (
+        <div ref={ref}>
+          <CardsContas
+            contasReceber={contasReceber}
+            contasPagar={contasPagar}
+          />
 
-        <TabelaPessoas
-          contas={[...contasPagar, ...contasReceber]}
-          pessoas={pessoas}
-        />
+          <TabelaPessoas
+            contas={[...contasPagar, ...contasReceber]}
+            pessoas={pessoas}
+          />
 
-        <TabelaPlanos
-          contasPagar={contasPagar}
-          contasReceber={contasReceber}
-          planosContas={planosContas}
-        />
+          <TabelaPlanos
+            contasPagar={contasPagar}
+            contasReceber={contasReceber}
+            planosContas={planosContas}
+          />
 
-        <FaturamentoCliente contasReceber={contasReceber} pessoas={pessoas} />
-        <InadimplenciaCliente contasReceber={contasReceber} pessoas={pessoas} />
-        <InadimplenciaFornecedor contasPagar={contasPagar} pessoas={pessoas} />
-      </div>
+          <FaturamentoCliente contasReceber={contasReceber} pessoas={pessoas} />
+          <InadimplenciaCliente contasReceber={contasReceber} pessoas={pessoas} />
+          <InadimplenciaFornecedor contasPagar={contasPagar} pessoas={pessoas} />
+        </div>
+      )}
     </div>
   );
 }

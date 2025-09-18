@@ -15,6 +15,7 @@ import {
 import { Bar } from "react-chartjs-2";
 import useQuery from "src/services/useQuery";
 import { Conta } from "src/utils/typings";
+import formatCurrency from "src/utils/formatCurrency";
 
 dayjs.extend(customParseFormat);
 
@@ -107,10 +108,6 @@ function CaixaDiario() {
     setApiData(result);
   }
 
-  function formatCurrency(value: number) {
-    return value.toLocaleString("pt-br", { style: "currency", currency: "BRL" });
-  }
-
   const options = {
     responsive: true,
     maintainAspectRatio: false,
@@ -163,7 +160,7 @@ function CaixaDiario() {
   }, []);
 
   return (
-    <div style={{ maxWidth: "60%", height: "calc(100vh - 200px)" }}>
+    <div style={{ height: "calc(100vh - 200px)" }}>
       <Card style={{ marginBottom: 8 }}>
         <Select
           placeholder="Mês"

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Table } from "antd";
+import { Table } from "src/components";
 import getColumns from "./columns";
 import { Conta, Pessoa } from "src/utils/typings";
 
@@ -53,8 +53,8 @@ function TabelaPessoas({ contas, pessoas }: TabelaPessoasProps) {
     <div style={{ marginTop: 16, marginBottom: 16 }}>
       <h2>Pessoas</h2>
       <Table
-        dataSource={data}
-        columns={getColumns(getData, handleSearch) as any}
+        data={data}
+        columns={getColumns(getData, handleSearch)}
         pagination={false}
       />
     </div>

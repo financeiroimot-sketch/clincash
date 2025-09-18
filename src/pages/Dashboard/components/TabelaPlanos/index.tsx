@@ -1,4 +1,4 @@
-import { Table } from "antd";
+import { Table } from "src/components";
 import columns from "./columns";
 import { Conta, PlanoConta } from "src/utils/typings";
 
@@ -91,7 +91,7 @@ function TabelaPlanos({ contasPagar, contasReceber, planosContas }: TabelaPlanos
     <div style={{ marginTop: 16, marginBottom: 16 }}>
       <h2>Planos de Contas</h2>
       <Table
-        dataSource={[...data, receitaSemPlano, despesaSemPlano]}
+        data={[...data, receitaSemPlano, despesaSemPlano]}
         columns={columns}
         pagination={false}
         rowKey="id"

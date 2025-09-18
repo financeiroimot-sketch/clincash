@@ -4,14 +4,11 @@ import { CurrencyInput } from "react-currency-mask";
 import dayjs, { Dayjs } from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import { Conta } from "src/utils/typings";
+import formatCurrency from "src/utils/formatCurrency";
 
 dayjs.extend(isBetween);
 
 const { RangePicker } = DatePicker;
-
-function formatCurrency(value: number) {
-  return value.toLocaleString("pt-br", { style: "currency", currency: "BRL" });
-}
 
 function getColumns(
   pessoasOptions: any[],
