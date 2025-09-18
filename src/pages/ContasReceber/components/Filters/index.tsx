@@ -111,6 +111,7 @@ function Filters({
         size="large"
         shape="circle"
         onClick={() => submit(filters)}
+        disabled={!(filters && Object.keys(filters).length > 0)}
         icon={<SearchOutlined />}
         style={{ marginLeft: 6, marginRight: 6 }}
       />

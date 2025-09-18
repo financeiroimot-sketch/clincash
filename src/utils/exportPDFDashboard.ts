@@ -35,7 +35,11 @@ export default async function exportPDFDashboard(
     } catch { }
 
     if (!imgData) {
-      try { imgData = orig.toDataURL("image/png"); } catch { imgData = null; }
+      try {
+        imgData = orig.toDataURL("image/png");
+      } catch {
+        imgData = null;
+      }
     }
 
     if (imgData) {

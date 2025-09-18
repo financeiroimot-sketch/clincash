@@ -18,7 +18,10 @@ function ContasReceber() {
   const { getDataByCollection, getUser } = useQuery();
   const ref = useRef(null);
 
+  const [searched, setSearched] = useState<boolean>(false);
   const [filters, setFilters] = useState<ContasFilter>();
+  const [pessoas, setPessoas] = useState<Pessoa[]>([]);
+  const [planosContas, setPlanosContas] = useState<PlanoConta[]>([]);
   const [pessoasOptions, setPessoasOptions] = useState<Option[]>([]);
   const [planosOptions, setPlanosOptions] = useState<Option[]>([]);
   const [contas, setContas] = useState<Conta[]>([]);
@@ -39,18 +42,6 @@ function ContasReceber() {
       return { statusVencimento: "Vence Essa Semana", statusVencimentoCor: "#fc9403" }
     }
     return { statusVencimento: "A Vencer", statusVencimentoCor: "#bababa" }
-  }
-
-  function setPessoas(pessoas: Pessoa[]) {
-    const ordered = pessoas.sort((a, b) => a.razaoSocial.localeCompare(b.razaoSocial));
-    const options = ordered.map(item => ({ value: item.razaoSocial, label: item.razaoSocial }));
-    setPessoasOptions(options);
-  }
-
-  function setPlanos(planosContas: PlanoConta[]) {
-    const ordered = planosContas.sort((a, b) => a.descricao.localeCompare(b.descricao));
-    const options = ordered.map(item => ({ value: item.descricao, label: item.descricao }));
-    setPlanosOptions(options);
   }
 
   function handleFilter(data: Conta[], filters: ContasFilter) {
@@ -98,19 +89,30 @@ function ContasReceber() {
     });
   }
 
-  async function getData(filters?: ContasFilter) {
-    const usuario = await getUser();
-    setColunasAtivas(usuario?.colunasContasReceber);
-
-    const [contasReceber, planosContas, pessoas] = await Promise.all([
-      getDataByCollection<Conta>("contasReceber"),
+  async function getOptions() {
+    const [planosContas, pessoas] = await Promise.all([
       getDataByCollection<PlanoConta>("planosContas"),
       getDataByCollection<Pessoa>("pessoas"),
     ]);
 
-    setFilters(filters);
+    const planosOrdered = planosContas.sort((a, b) => a.descricao.localeCompare(b.descricao));
+    const planosResult = planosOrdered.map(item => ({ value: item.descricao, label: item.descricao }));
+    setPlanosContas(planosContas);
+    setPlanosOptions(planosResult);
+
+    const pessoasOrdered = pessoas.sort((a, b) => a.razaoSocial.localeCompare(b.razaoSocial));
+    const pessoasResult = pessoasOrdered.map(item => ({ value: item.razaoSocial, label: item.razaoSocial }));
     setPessoas(pessoas);
-    setPlanos(planosContas);
+    setPessoasOptions(pessoasResult);
+  }
+
+  async function getData(filters?: ContasFilter) {
+    const usuario = await getUser();
+    setColunasAtivas(usuario?.colunasContasReceber);
+
+    const contasReceber = await getDataByCollection<Conta>("contasReceber");
+
+    setFilters(filters);
 
     const data = contasReceber.map(item => {
       const planoContas = planosContas?.find(plano => plano.id === item?.planoContasId);
@@ -123,11 +125,13 @@ function ContasReceber() {
 
     if (filters) {
       const result = handleFilter(data as Conta[], filters);
+      setSearched(true);
       setContas(result as Conta[]);
       setContasFilter(result as Conta[]);
       return;
     }
 
+    setSearched(true);
     setContas(data as Conta[]);
     setContasFilter(data as Conta[]);
   }
@@ -147,7 +151,8 @@ function ContasReceber() {
   }
 
   useEffect(() => {
-    getData();
+    setSearched(false);
+    getOptions();
   }, [JSON.stringify(params), showForm]);
 
   return (
@@ -175,16 +180,19 @@ function ContasReceber() {
                 icon={<DownloadOutlined style={{ fontSize: 20 }} />}
                 shape="circle"
                 type="primary"
+                disabled={!searched}
               />
             </Tooltip>
           </Card>
 
-          <div ref={ref}>
-            <Table
-              columns={getColumns(getData, reset, handleCheckColumn, handleSearch)}
-              data={contasFilter}
-            />
-          </div>
+          {searched && (
+            <div ref={ref}>
+              <Table
+                columns={getColumns(getData, reset, handleCheckColumn, handleSearch)}
+                data={contasFilter}
+              />
+            </div>
+          )}
         </>
       )}
     </Layout>
