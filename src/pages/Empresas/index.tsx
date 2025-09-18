@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useQuery from "src/services/useQuery";
 import { Empresa } from "src/utils/typings";
-import { Table, Filter } from "src/components";
+import { Table, AddButton } from "src/components";
 import Form from "./components/Form";
 import columns from "./columns";
 
@@ -29,7 +29,7 @@ function Empresas() {
         <Form id={params?.id || null} setShowForm={setShowForm} />
       ) : (
         <>
-          <Filter setShowForm={setShowForm} />
+          <AddButton setShowForm={setShowForm} />
           <Table
             columns={columns}
             data={empresas}

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useQuery from "src/services/useQuery";
 import { Pessoa, PlanoConta } from "src/utils/typings";
-import { Table, Filter, Layout } from "src/components";
+import { Table, AddButton, Layout } from "src/components";
 import Form from "./components/Form";
 import getColumns from "./columns";
 
@@ -51,7 +51,7 @@ function Pessoas() {
         />
       ) : (
         <>
-          <Filter setShowForm={setShowForm} />
+          <AddButton setShowForm={setShowForm} />
           <Table
             columns={getColumns(reset, handleSearch)}
             data={pessoasFilter}

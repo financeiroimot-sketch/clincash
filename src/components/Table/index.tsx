@@ -1,7 +1,4 @@
-import {
-  Table as AntdTable,
-  TableProps as AntdTableProps,
-} from "antd";
+import { Table as AntdTable, TableProps as AntdTableProps } from "antd";
 
 interface TableProps extends AntdTableProps {
   data: any[];

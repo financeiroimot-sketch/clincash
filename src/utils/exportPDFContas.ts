@@ -9,7 +9,13 @@ function buildFiltersText(filters: ContasFilter): string {
   const result: string[] = [];
 
   if (filters.statusPagamento) {
-    result.push(`Status de Pagamento: ${filters.statusPagamento === "pago" ? "Pago" : "Em Aberto"}`);
+    const statusPagamentoText = filters.statusPagamento.map(item => {
+      if (item === "pago") {
+        return "Pago";
+      }
+      return "Em Aberto";
+    }).join(", ");
+    result.push(`Status de Pagamento: ${statusPagamentoText}`);
   }
 
   if (filters.statusVencimento) {

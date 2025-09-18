@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, Key } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import useQuery from "src/services/useQuery";
 import { PlanoConta } from "src/utils/typings";
-import { Table, Filter, Layout } from "src/components";
+import { Table, AddButton, Layout } from "src/components";
 import Form from "./components/Form";
 import getColumns from "./columns";
 
@@ -16,6 +16,7 @@ function PlanoContas() {
   const [planosFilter, setPlanosFilter] = useState<PlanoConta[]>([]);
   const [editing, setEditing] = useState<boolean>(false);
   const [showForm, setShowForm] = useState<boolean>(false);
+  const [expandedRowKeys, setExpandedRowKeys] = useState<Key[]>([]);
 
   function orderData(data: any) {
     return data.sort((a: any, b: any) => a.classificacao.localeCompare(b.classificacao));
@@ -48,7 +49,7 @@ function PlanoContas() {
 
     return roots;
   }
-  
+
   async function getData() {
     const data = await getDataByCollection<PlanoConta>("planosContas");
     const orderedData = orderData(data);
@@ -88,10 +89,20 @@ function PlanoContas() {
         />
       ) : (
         <>
-          <Filter setShowForm={setShowForm} />
+          <AddButton setShowForm={setShowForm} />
           <Table
             columns={getColumns(getData, reset, handleSearch)}
             data={planosFilter}
+            expandable={{
+              expandedRowKeys,
+              onExpand: (expanded, record) => {
+                if (expanded) {
+                  setExpandedRowKeys([...expandedRowKeys, record.key]);
+                } else {
+                  setExpandedRowKeys(expandedRowKeys.filter((k) => k !== record.key));
+                }
+              },
+            }}
           />
         </>
       )}

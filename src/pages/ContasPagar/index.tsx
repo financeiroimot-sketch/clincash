@@ -1,13 +1,12 @@
 import { useEffect, useState, useRef } from "react";
-import { Button, Card, Tooltip } from "antd";
-import { DownloadOutlined } from "@ant-design/icons";
+import { Button, Tooltip } from "antd";
+import { ExportOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import moment from "moment";
 import useQuery from "src/services/useQuery";
 import { Conta, Coluna, PlanoConta, Pessoa, Option, ContasFilter } from "src/utils/typings";
-import { Table, Filter, Layout } from "src/components";
-import Filters from "./components/Filters";
+import { Table, AddButton, Layout, FiltersContas } from "src/components";
 import Form from "./components/Form";
 import getColumns from "./columns";
 import exportPDF from "src/utils/exportPDFContas";
@@ -50,11 +49,11 @@ function ContasPagar() {
         return false;
       }
 
-      if (filters.statusPagamento && item.statusPagamento !== filters.statusPagamento) {
+      if (filters.statusPagamento?.length && !filters.statusPagamento.includes(item.statusPagamento)) {
         return false;
       }
 
-      if (filters.statusVencimento && item.statusVencimento !== filters.statusVencimento) {
+      if (filters.statusVencimento?.length && !filters.statusVencimento.includes(item.statusVencimento)) {
         return false;
       }
 
@@ -164,26 +163,25 @@ function ContasPagar() {
         />
       ) : (
         <>
-          <Filter setShowForm={setShowForm} />
+          <AddButton setShowForm={setShowForm} />
 
-          <Card style={{ marginBottom: 8, display: "flex" }}>
-            <Filters
-              planosOptions={planosOptions}
-              pessoasOptions={pessoasOptions}
-              submit={getData}
-            />
-
-            <Tooltip title="Exportar PDF">
-              <Button
-                size="large"
-                onClick={() => exportPDF(ref, "contas-pagar", "Contas a Pagar", filters)}
-                icon={<DownloadOutlined style={{ fontSize: 20 }} />}
-                shape="circle"
-                type="primary"
-                disabled={!searched}
-              />
-            </Tooltip>
-          </Card>
+          <FiltersContas
+            planosOptions={planosOptions}
+            pessoasOptions={pessoasOptions}
+            submit={getData}
+            exportButton={
+              <Tooltip title="Exportar PDF">
+                <Button
+                  size="large"
+                  onClick={() => exportPDF(ref, "contas-pagar", "Contas a Pagar", filters)}
+                  icon={<ExportOutlined />}
+                  disabled={!searched}
+                >
+                  Exportar
+                </Button>
+              </Tooltip>
+            }
+          />
 
           {searched && (
             <div ref={ref}>

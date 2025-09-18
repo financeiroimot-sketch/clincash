@@ -96,8 +96,8 @@ export interface ValorPorPessoa {
 }
 
 export interface ContasFilter {
-  statusVencimento?: StatusVencimento;
-  statusPagamento?: StatusPagamento;
+  statusVencimento?: StatusVencimento[];
+  statusPagamento?: StatusPagamento[];
   razaoSocialDescricao?: string[];
   planoContasDescricao?: string[];
   dataVencimentoInicial?: string;

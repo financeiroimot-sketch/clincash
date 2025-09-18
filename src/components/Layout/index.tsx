@@ -6,7 +6,7 @@ interface LayoutProps {
 
 function Layout({ children }: LayoutProps) {
   return (
-    <div style={{ width: "100%", maxWidth: 1500 }}>
+    <div style={{ width: "100%", maxWidth: 1200 }}>
       {children}
     </div>
   );
