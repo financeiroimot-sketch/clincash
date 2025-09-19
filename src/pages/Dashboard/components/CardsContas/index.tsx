@@ -15,25 +15,33 @@ function CardsContas({ contasReceber, contasPagar }: CardsContasProps) {
   const contasPagarPlanejado = contasPagar.reduce((acc, conta) => acc += conta.valor ?? 0, 0);
 
   return (
-    <Row gutter={[16, 16]}>
+    <Row gutter={[6, 6]}>
       <Col span={6}>
         <Card title="A Receber Realizado" style={{ borderLeft: "4px solid #22c55e" }}>
-          <h1 style={{ margin: 0 }}>{formatCurrency(contasReceberRealizado ?? 0)}</h1>
+          <h2 style={{ margin: 0, fontSize: "1.3rem" }}>
+            {formatCurrency(contasReceberRealizado ?? 0)}
+          </h2>
         </Card>
       </Col>
       <Col span={6}>
         <Card title="A Receber Planejado" style={{ borderLeft: "4px solid #3b82f6" }}>
-          <h1 style={{ margin: 0 }}>{formatCurrency(contasReceberPlanejado ?? 0)}</h1>
+          <h2 style={{ margin: 0, fontSize: "1.3rem" }}>
+            {formatCurrency(contasReceberPlanejado ?? 0)}
+          </h2>
         </Card>
       </Col>
       <Col span={6}>
         <Card title="A Pagar Realizado" style={{ borderLeft: "4px solid #ef4444" }}>
-          <h1 style={{ margin: 0 }}>{formatCurrency(contasPagarRealizado ?? 0)}</h1>
+          <h2 style={{ margin: 0, fontSize: "1.3rem" }}>
+            {formatCurrency(contasPagarRealizado ?? 0)}
+          </h2>
         </Card>
       </Col>
       <Col span={6}>
         <Card title="A Pagar Planejado" style={{ borderLeft: "4px solid #f59e0b" }}>
-          <h1 style={{ margin: 0 }}>{formatCurrency(contasPagarPlanejado ?? 0)}</h1>
+          <h2 style={{ margin: 0, fontSize: "1.3rem" }}>
+            {formatCurrency(contasPagarPlanejado ?? 0)}
+          </h2>
         </Card>
       </Col>
     </Row>

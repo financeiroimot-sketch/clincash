@@ -1,9 +1,9 @@
 import { useState, useRef } from "react";
-import { Card, Button, Tooltip, DatePicker } from "antd";
-import { DownloadOutlined, LockOutlined, SearchOutlined, UnlockOutlined } from "@ant-design/icons";
+import { Button, Tooltip, DatePicker, Row, Col } from "antd";
+import { ExportOutlined, LockOutlined, SearchOutlined, UnlockOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import moment from "moment";
-import { Table, Layout } from "src/components";
+import { Table, Layout, Filter } from "src/components";
 import useQuery from "src/services/useQuery";
 import { Conta, Pessoa, Coluna, PlanoConta, Option } from "src/utils/typings";
 import getColumns from "./columns";
@@ -182,54 +182,63 @@ function Empresas() {
 
   return (
     <Layout>
-      <Card style={{ display: "flex", marginBottom: 16 }}>
-        <RangePicker
-          size="large"
-          format="DD/MM/YYYY"
-          onChange={handleSetDates}
-          style={{ width: 250 }}
-        />
-        <Button
-          type="primary"
-          size="large"
-          shape="circle"
-          icon={<SearchOutlined />}
-          onClick={getData}
-          style={{ marginLeft: 8 }}
-          disabled={!periodoInicio || !periodoFim}
-        />
-        <Tooltip title="Exportar PDF">
-          <Button
-            size="large"
-            onClick={() => exportPDF(
-              ref,
-              "livro-caixa",
-              "Livro Caixa",
-              `${periodoInicio} a ${periodoFim}`
-            )}
-            icon={<DownloadOutlined style={{ fontSize: 20 }} />}
-            shape="circle"
-            type="primary"
-            style={{ marginLeft: 8, marginRight: 8 }}
-            disabled={!searched}
-          />
-        </Tooltip>
-        {canEdit && (
-          <Tooltip title={isEditing ? "Finalizar edição" : "Editar"}>
+      <Filter subtitle="Livro Caixa">
+        <Row gutter={[8, 8]}>
+          <Col xs={24} sm={12} md={8}>
+            <RangePicker
+              size="large"
+              format="DD/MM/YYYY"
+              onChange={handleSetDates}
+              style={{ width: "100%" }}
+            />
+          </Col>
+          <Col xs={24} sm={12} md={4}>
             <Button
               type="primary"
-              shape="circle"
+              icon={<SearchOutlined />}
               size="large"
-              onClick={handleSetEditing}
-              disabled={!searched}
-              icon={isEditing
-                ? <UnlockOutlined style={{ fontSize: 22 }} />
-                : <LockOutlined style={{ fontSize: 22 }} />
-              }
-            />
-          </Tooltip>
-        )}
-      </Card>
+              onClick={getData}
+              style={{ width: "100%" }}
+              disabled={!periodoInicio || !periodoFim}
+            >
+              Buscar
+            </Button>
+          </Col>
+          <Col xs={24} sm={12} md={4}>
+            <Tooltip title="Exportar PDF">
+              <Button
+                size="large"
+                onClick={() => exportPDF(
+                  ref,
+                  "livro-caixa",
+                  "Livro Caixa",
+                  `${periodoInicio} a ${periodoFim}`
+                )}
+                icon={<ExportOutlined />}
+                disabled={!searched}
+                style={{ width: "100%" }}
+              >
+                Exportar
+              </Button>
+            </Tooltip>
+          </Col>
+          {canEdit && (
+            <Col xs={24} sm={12} md={3}>
+              <Tooltip title={isEditing ? "Finalizar edição" : "Editar"}>
+                <Button
+                  size="large"
+                  onClick={handleSetEditing}
+                  disabled={!searched}
+                  icon={isEditing
+                    ? <UnlockOutlined style={{ fontSize: 22 }} />
+                    : <LockOutlined style={{ fontSize: 22 }} />
+                  }
+                >{isEditing ? "Finalizar edição" : "Editar"}</Button>
+              </Tooltip>
+            </Col>
+          )}
+        </Row>
+      </Filter>
 
       {searched && (
         <div ref={ref}>

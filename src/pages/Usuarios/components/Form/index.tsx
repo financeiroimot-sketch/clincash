@@ -11,7 +11,7 @@ import { FormFields } from "src/components";
 import useQuery from "src/services/useQuery";
 import { maskPhone, unmaskPhone } from "src/utils/phoneMask";
 import { Usuario, Coluna, CollectionName } from "src/utils/typings";
-import { contasPagar, contasReceber, livroCaixa } from "./columns";
+import { contasPagar, contasReceber, livroCaixa, dashboard } from "./columns";
 
 dayjs.extend(weekday);
 dayjs.extend(localeData);
@@ -34,6 +34,7 @@ function Form({ id, setShowForm }: FormProps) {
   const [colunasContasPagar, setColunasContasPagar] = useState<Coluna[]>(contasPagar);
   const [colunasContasReceber, setColunasContasReceber] = useState<Coluna[]>(contasReceber);
   const [colunasLivroCaixa, setColunasLivroCaixa] = useState<Coluna[]>(livroCaixa);
+  const [colunasDashboard, setColunasDashboard] = useState<Coluna[]>(dashboard);
 
   async function getData() {
     const data = await getDataById(id!, "usuarios");
@@ -56,6 +57,11 @@ function Form({ id, setShowForm }: FormProps) {
         const colunaUsuario = usuario?.colunasLivroCaixa?.find(c => c.coluna === item.coluna);
         return colunaUsuario || item;
       }));
+
+      setColunasDashboard(dashboard.map(item => {
+        const colunaUsuario = usuario?.colunasDashboard?.find(c => c.coluna === item.coluna);
+        return colunaUsuario || item;
+      }));
     }
   }
 
@@ -71,7 +77,13 @@ function Form({ id, setShowForm }: FormProps) {
 
   async function handleSave(values: any) {
     const data = formatData(values);
-    const result = await updateData(id!, { ...data, colunasContasPagar, colunasContasReceber, colunasLivroCaixa }, "usuarios");
+    const result = await updateData(id!, {
+      ...data,
+      colunasContasPagar,
+      colunasContasReceber,
+      colunasLivroCaixa,
+      colunasDashboard,
+    }, "usuarios");
     if (result) {
       toast.success("Usuário salvo com sucesso");
       handleBack();
@@ -80,7 +92,13 @@ function Form({ id, setShowForm }: FormProps) {
 
   async function handleCreate(values: any) {
     const data = formatData(values);
-    const result = await saveUser({ ...data, colunasContasPagar, colunasContasReceber, colunasLivroCaixa }, "usuarios");
+    const result = await saveUser({
+      ...data,
+      colunasContasPagar,
+      colunasContasReceber,
+      colunasLivroCaixa,
+      colunasDashboard,
+    }, "usuarios");
     if (result) {
       toast.success("Usuário salvo com sucesso");
       handleBack();
@@ -126,6 +144,16 @@ function Form({ id, setShowForm }: FormProps) {
         return item;
       });
       setColunasLivroCaixa(columns);
+      return;
+    }
+    if (collection === "dashboard") {
+      const columns = colunasDashboard.map(item => {
+        if (item.coluna === column) {
+          return { ...item, ativo: !item.ativo }
+        }
+        return item;
+      });
+      setColunasDashboard(columns);
       return;
     }
   }
@@ -219,6 +247,7 @@ function Form({ id, setShowForm }: FormProps) {
       children: (
         <Table
           dataSource={colunasContasPagar}
+          pagination={false}
           columns={[
             {
               title: "Coluna",
@@ -248,6 +277,7 @@ function Form({ id, setShowForm }: FormProps) {
       children: (
         <Table
           dataSource={colunasContasReceber}
+          pagination={false}
           columns={[
             {
               title: "Coluna",
@@ -277,6 +307,7 @@ function Form({ id, setShowForm }: FormProps) {
       children: (
         <Table
           dataSource={colunasLivroCaixa}
+          pagination={false}
           columns={[
             {
               title: "Coluna",
@@ -301,6 +332,36 @@ function Form({ id, setShowForm }: FormProps) {
     },
     {
       key: "5",
+      label: "Dashboard",
+      forceRender: true,
+      children: (
+        <Table
+          dataSource={colunasDashboard}
+          pagination={false}
+          columns={[
+            {
+              title: "Coluna",
+              dataIndex: "coluna",
+              key: "coluna",
+              render: (value: string) => <span>{value ?? "-"}</span>
+            },
+            {
+              title: "Ativo",
+              dataIndex: "ativo",
+              key: "ativo",
+              render: (value: boolean, record: Coluna) => (
+                <Checkbox
+                  checked={value}
+                  onChange={() => handleChangeColumn(record.coluna, "dashboard")}
+                />
+              ),
+            }
+          ]}
+        />
+      ),
+    },
+    {
+      key: "6",
       label: "Histórico",
       forceRender: true,
       children: <FormFields form={form} />,
@@ -314,7 +375,7 @@ function Form({ id, setShowForm }: FormProps) {
   }, []);
 
   return (
-    <Card style={{ maxWidth: 700 }}>
+    <Card style={{ maxWidth: 780 }}>
       <AntdForm
         form={form}
         layout="vertical"

@@ -8,6 +8,7 @@ import {
   Card,
   Space,
   Tag,
+  Flex,
 } from "antd";
 import {
   SearchOutlined,
@@ -33,6 +34,7 @@ const statusVencimentoOptions = [
 ];
 
 interface FiltersContasProps {
+  subtitle: string;
   planosOptions: Option[];
   pessoasOptions: Option[];
   exportButton?: ReactNode;
@@ -41,18 +43,18 @@ interface FiltersContasProps {
 }
 
 function FiltersContas({
+  subtitle,
   planosOptions,
   pessoasOptions,
   exportButton,
   defaultFilters,
   submit,
 }: FiltersContasProps) {
+
   const [filters, setFilters] = useState<ContasFilter | undefined>(defaultFilters);
   const [expanded, setExpanded] = useState(true);
 
-  const [appliedTags, setAppliedTags] = useState<
-    { key: string; label: string }[]
-  >([]);
+  const [appliedTags, setAppliedTags] = useState<{ key: string; label: string }[]>([]);
 
   function handleSetDatesVencimento(dates: any) {
     if (!dates) {
@@ -92,7 +94,7 @@ function FiltersContas({
     }));
   }
 
-  function aplicarFiltros() {
+  function applyFilters() {
     const tags: { key: string; label: string }[] = [];
 
     if (filters?.statusVencimento?.length) {
@@ -169,20 +171,20 @@ function FiltersContas({
   }
 
   return (
-    <Card
-      title="Filtros"
-      extra={
+    <Card style={{ borderRadius: 10, marginBottom: 8 }}>
+      <Flex justify="space-between" align="center" style={{ marginBottom: expanded ? 20 : 0 }}>
+        <p style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Filtros - {subtitle}</p>
         <Button
           type="link"
           icon={expanded ? <UpOutlined /> : <DownOutlined />}
           onClick={() => setExpanded(!expanded)}
+          size="large"
         >
           {expanded ? "Recolher" : "Expandir"}
         </Button>
-      }
-      style={{ borderRadius: 10, marginBottom: 8 }}
-    >
-      {expanded && (
+      </Flex>
+
+      {expanded ? (
         <>
           <Row gutter={[8, 8]}>
             <Col xs={24} sm={12} md={6}>
@@ -192,6 +194,10 @@ function FiltersContas({
                 options={statusVencimentoOptions}
                 placeholder="Status de Vencimento"
                 size="large"
+                maxTagCount={0}
+                maxTagPlaceholder={() =>
+                  `Status de Vencimento (${filters?.statusVencimento?.length || 0})`
+                }
                 value={filters?.statusVencimento}
                 onChange={(value) =>
                   setFilters((prev) => ({ ...prev, statusVencimento: value }))
@@ -207,6 +213,10 @@ function FiltersContas({
                 options={statusPagamentoOptions}
                 placeholder="Status de Pagamento"
                 size="large"
+                maxTagCount={0}
+                maxTagPlaceholder={() =>
+                  `Status de Pagamento (${filters?.statusPagamento?.length || 0})`
+                }
                 value={filters?.statusPagamento}
                 onChange={(value) =>
                   setFilters((prev) => ({ ...prev, statusPagamento: value }))
@@ -222,6 +232,10 @@ function FiltersContas({
                 options={pessoasOptions}
                 placeholder="Razão Social"
                 size="large"
+                maxTagCount={0}
+                maxTagPlaceholder={() =>
+                  `Razão Social (${filters?.razaoSocialDescricao?.length || 0})`
+                }
                 value={filters?.razaoSocialDescricao}
                 onChange={(value) =>
                   setFilters((prev) => ({
@@ -240,6 +254,10 @@ function FiltersContas({
                 options={planosOptions}
                 placeholder="Plano de Contas"
                 size="large"
+                maxTagCount={0}
+                maxTagPlaceholder={() =>
+                  `Plano de Contas (${filters?.planoContasDescricao?.length || 0})`
+                }
                 value={filters?.planoContasDescricao}
                 onChange={(value) =>
                   setFilters((prev) => ({
@@ -291,7 +309,7 @@ function FiltersContas({
                 type="primary"
                 icon={<SearchOutlined />}
                 size="large"
-                onClick={aplicarFiltros}
+                onClick={applyFilters}
                 style={{ width: "100%" }}
               >
                 Buscar
@@ -322,6 +340,23 @@ function FiltersContas({
             </Row>
           )}
         </>
+      ) : appliedTags.length > 0 && (
+        <Row style={{ marginTop: 16 }}>
+          <Col span={24}>
+            <Space wrap>
+              {appliedTags.map((tag) => (
+                <Tag
+                  key={tag.key}
+                  closable
+                  onClose={() => removerTag(tag.key)}
+                  color="blue"
+                >
+                  {tag.label}
+                </Tag>
+              ))}
+            </Space>
+          </Col>
+        </Row>
       )}
     </Card>
   );

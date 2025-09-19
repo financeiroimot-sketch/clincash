@@ -21,6 +21,7 @@ export interface Usuario {
   colunasContasPagar: Coluna[];
   colunasContasReceber: Coluna[];
   colunasLivroCaixa: Coluna[];
+  colunasDashboard: Coluna[];
   telefone?: string;
 }
 
@@ -120,4 +121,5 @@ export type CollectionName =
   | "planosContas"
   | "usuarios"
   | "atividades"
-  | "livroCaixa";
+  | "livroCaixa"
+  | "dashboard";

@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
-import { Card, DatePicker, Button, Tooltip as AntdTooltip } from "antd";
-import { DownloadOutlined, SearchOutlined } from "@ant-design/icons";
+import { DatePicker, Button, Tooltip as AntdTooltip, Row, Col } from "antd";
+import { ExportOutlined, SearchOutlined } from "@ant-design/icons";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import {
   CategoryScale,
@@ -9,6 +9,7 @@ import {
   Title,
 } from "chart.js";
 import moment from "moment";
+import { Filter } from "src/components";
 import CardsContas from "./components/CardsContas";
 import FaturamentoCliente from "./components/FaturamentoCliente";
 import InadimplenciaCliente from "./components/InadimplenciaCliente";
@@ -16,7 +17,7 @@ import InadimplenciaFornecedor from "./components/InadimplenciaFornecedor";
 import TabelaPessoas from "./components/TabelaPessoas";
 import TabelaPlanos from "./components/TabelaPlanos";
 import useQuery from "src/services/useQuery";
-import { Conta, Pessoa, PlanoConta } from "src/utils/typings";
+import { Conta, Pessoa, PlanoConta, Coluna } from "src/utils/typings";
 import exportPDF from "src/utils/exportPDFDashboard";
 
 ChartJS.register(
@@ -33,7 +34,7 @@ const { RangePicker } = DatePicker;
 
 function Dashboard() {
 
-  const { getDataByCollection } = useQuery();
+  const { getDataByCollection, getUser } = useQuery();
   const ref = useRef(null);
 
   const [searched, setSearched] = useState<boolean>(false);
@@ -43,9 +44,13 @@ function Dashboard() {
   const [contasPagar, setContasPagar] = useState<Conta[]>([]);
   const [pessoas, setPessoas] = useState<Pessoa[]>([]);
   const [planosContas, setPlanosContas] = useState<PlanoConta[]>([]);
+  const [colunasAtivas, setColunasAtivas] = useState<Coluna[]>([]);
 
   async function getData() {
     if (periodoInicio && periodoFim) {
+      const usuario = await getUser();
+      setColunasAtivas(usuario?.colunasDashboard);
+
       const [contasPagar, contasReceber, planosContas, pessoas] = await Promise.all([
         getDataByCollection<Conta>("contasPagar"),
         getDataByCollection<Conta>("contasReceber"),
@@ -82,63 +87,91 @@ function Dashboard() {
     setPeriodoFim(end);
   }
 
+  function handleCheckColumn(columnName: string) {
+    const column = colunasAtivas?.find(item => item.coluna === columnName);
+    return column ? column.ativo : true;
+  }
+
   return (
     <div>
-      <Card style={{ marginBottom: 16 }}>
-        <RangePicker
-          size="large"
-          format="DD/MM/YYYY"
-          onChange={handleSetDates}
-          style={{ width: 250 }}
-        />
-        <Button
-          type="primary"
-          size="large"
-          shape="circle"
-          icon={<SearchOutlined />}
-          onClick={getData}
-          style={{ marginLeft: 8, marginRight: 8 }}
-          disabled={!periodoInicio || !periodoFim}
-        />
-        <AntdTooltip title="Exportar PDF">
-          <Button
-            size="large"
-            onClick={() => exportPDF(
-              ref,
-              "dashboard",
-              "Dashboard",
-              `${periodoInicio} a ${periodoFim}`,
-            )}
-            icon={<DownloadOutlined style={{ fontSize: 20 }} />}
-            shape="circle"
-            type="primary"
-            style={{ marginRight: 8 }}
-            disabled={!searched}
-          />
-        </AntdTooltip>
-      </Card>
+      <Filter subtitle="Dashboard">
+        <Row gutter={[8, 8]}>
+          <Col xs={24} sm={12} md={8}>
+            <RangePicker
+              size="large"
+              format="DD/MM/YYYY"
+              onChange={handleSetDates}
+              style={{ width: "100%" }}
+            />
+          </Col>
+          <Col xs={24} sm={12} md={4}>
+            <Button
+              type="primary"
+              icon={<SearchOutlined />}
+              size="large"
+              onClick={getData}
+              style={{ width: "100%" }}
+              disabled={!periodoInicio || !periodoFim}
+            >
+              Buscar
+            </Button>
+          </Col>
+          <Col xs={24} sm={12} md={4}>
+            <AntdTooltip title="Exportar PDF">
+              <Button
+                size="large"
+                onClick={() => exportPDF(
+                  ref,
+                  "dashboard",
+                  "Dashboard",
+                  `${periodoInicio} a ${periodoFim}`,
+                )}
+                icon={<ExportOutlined />}
+                disabled={!searched}
+                style={{ width: "100%" }}
+              >
+                Exportar
+              </Button>
+            </AntdTooltip>
+          </Col>
+        </Row>
+      </Filter>
 
       {searched && (
         <div ref={ref}>
-          <CardsContas
-            contasReceber={contasReceber}
-            contasPagar={contasPagar}
-          />
+          {handleCheckColumn("Resumo das Contas") && (
+            <CardsContas
+              contasReceber={contasReceber}
+              contasPagar={contasPagar}
+            />
+          )}
 
-          <TabelaPessoas
-            contas={[...contasPagar, ...contasReceber]}
-            pessoas={pessoas}
-          />
+          {handleCheckColumn("Tabela de Pessoas") && (
+            <TabelaPessoas
+              contas={[...contasPagar, ...contasReceber]}
+              pessoas={pessoas}
+            />
+          )}
 
-          <TabelaPlanos
-            contasPagar={contasPagar}
-            contasReceber={contasReceber}
-            planosContas={planosContas}
-          />
+          {handleCheckColumn("Tabela de Planos de Contas") && (
+            <TabelaPlanos
+              contasPagar={contasPagar}
+              contasReceber={contasReceber}
+              planosContas={planosContas}
+            />
+          )}
 
-          <FaturamentoCliente contasReceber={contasReceber} pessoas={pessoas} />
-          <InadimplenciaCliente contasReceber={contasReceber} pessoas={pessoas} />
-          <InadimplenciaFornecedor contasPagar={contasPagar} pessoas={pessoas} />
+          {handleCheckColumn("Faturamento por Cliente") && (
+            <FaturamentoCliente contasReceber={contasReceber} pessoas={pessoas} />
+          )}
+
+          {handleCheckColumn("Inadimplência por Cliente") && (
+            <InadimplenciaCliente contasReceber={contasReceber} pessoas={pessoas} />
+          )}
+
+          {handleCheckColumn("Inadimplência por Fornecedor") && (
+            <InadimplenciaFornecedor contasPagar={contasPagar} pessoas={pessoas} />
+          )}
         </div>
       )}
     </div>

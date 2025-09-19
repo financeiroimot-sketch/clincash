@@ -98,3 +98,30 @@ export const livroCaixa = [
     ativo: true,
   }
 ];
+
+export const dashboard = [
+  {
+    ativo: true,
+    coluna: "Resumo das Contas"
+  },
+  {
+    ativo: true,
+    coluna: "Tabela de Pessoas"
+  },
+  {
+    ativo: true,
+    coluna: "Tabela de Planos de Contas"
+  },
+  {
+    coluna: "Faturamento por Cliente",
+    ativo: true,
+  },
+  {
+    coluna: "Inadimplência por Cliente",
+    ativo: true,
+  },
+  {
+    coluna: "Inadimplência por Fornecedor",
+    ativo: true,
+  },
+];

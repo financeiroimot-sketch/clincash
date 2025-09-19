@@ -1,17 +1,32 @@
-import { PlusOutlined } from "@ant-design/icons";
+import { ReactNode, useState } from "react";
+import { Button, Card, Flex } from "antd";
+import { DownOutlined, UpOutlined } from "@ant-design/icons";
 
 interface FilterProps {
-  setShowForm: (show: boolean) => void;
+  children: ReactNode;
+  subtitle: string;
 }
 
-function Filter({ setShowForm }: FilterProps) {
+function Filter({ children, subtitle }: FilterProps) {
+
+  const [expanded, setExpanded] = useState(true);
+
   return (
-    <div style={{ position: "fixed", zIndex: 999999, bottom: 25, right: 25 }}>
-      <PlusOutlined
-        style={{ fontSize: 20, backgroundColor: "#1677FF", color: "#fff", borderRadius: "50%", padding: 8 }}
-        onClick={() => setShowForm(true)}
-      />
-    </div>
+    <Card style={{ borderRadius: 10, marginBottom: 8 }}>
+      <Flex justify="space-between" align="center" style={{ marginBottom: expanded ? 20 : 0 }}>
+        <p style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Filtros - {subtitle}</p>
+        <Button
+          type="link"
+          icon={expanded ? <UpOutlined /> : <DownOutlined />}
+          onClick={() => setExpanded(!expanded)}
+          size="large"
+        >
+          {expanded ? "Recolher" : "Expandir"}
+        </Button>
+      </Flex>
+
+      {expanded && children}
+    </Card>
   );
 }
 

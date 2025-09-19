@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, Button, Select } from "antd";
+import { Button, Select, Row, Col } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -13,6 +13,7 @@ import {
   Legend,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
+import { Filter } from "src/components";
 import useQuery from "src/services/useQuery";
 import { Conta } from "src/utils/typings";
 import formatCurrency from "src/utils/formatCurrency";
@@ -161,34 +162,44 @@ function CaixaDiario() {
 
   return (
     <div style={{ height: "calc(100vh - 200px)" }}>
-      <Card style={{ marginBottom: 8 }}>
-        <Select
-          placeholder="Mês"
-          size="large"
-          value={month}
-          options={monthOptions}
-          onChange={setMonth}
-          style={{ minWidth: 120 }}
-        />
+      <Filter subtitle="Dashboard">
+        <Row gutter={[8, 8]}>
+          <Col xs={24} sm={12} md={3}>
+            <Select
+              placeholder="Mês"
+              size="large"
+              value={month}
+              options={monthOptions}
+              onChange={setMonth}
+              style={{ width: "100%" }}
+            />
+          </Col>
 
-        <Select
-          placeholder="Ano"
-          size="large"
-          value={year}
-          options={getYearOptions()}
-          onChange={setYear}
-          style={{ marginLeft: 8, minWidth: 120 }}
-        />
+          <Col xs={24} sm={12} md={3}>
+            <Select
+              placeholder="Ano"
+              size="large"
+              value={year}
+              options={getYearOptions()}
+              onChange={setYear}
+              style={{ width: "100%" }}
+            />
+          </Col>
 
-        <Button
-          type="primary"
-          size="large"
-          icon={<SearchOutlined />}
-          onClick={getData}
-          disabled={!year || !month}
-          style={{ marginLeft: 8 }}
-        />
-      </Card>
+          <Col xs={24} sm={12} md={3}>
+            <Button
+              type="primary"
+              icon={<SearchOutlined />}
+              size="large"
+              onClick={getData}
+              disabled={!year || !month}
+              style={{ width: "100%" }}
+            >
+              Buscar
+            </Button>
+          </Col>
+        </Row>
+      </Filter>
 
       {month && year && apiData && <Bar options={options} data={data} />}
     </div>

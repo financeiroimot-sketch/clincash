@@ -165,6 +165,7 @@ function ContasReceber() {
           <AddButton setShowForm={setShowForm} />
 
           <FiltersContas
+            subtitle="Contas a Receber"
             planosOptions={planosOptions}
             pessoasOptions={pessoasOptions}
             submit={getData}

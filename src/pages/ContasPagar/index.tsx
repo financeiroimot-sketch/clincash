@@ -165,6 +165,7 @@ function ContasPagar() {
           <AddButton setShowForm={setShowForm} />
 
           <FiltersContas
+            subtitle="Contas a Pagar"
             planosOptions={planosOptions}
             pessoasOptions={pessoasOptions}
             submit={getData}

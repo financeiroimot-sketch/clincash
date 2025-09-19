@@ -11,6 +11,7 @@ import Layout from "./Layout";
 import Actions from "./Actions";
 import ExcluirConta from "./ExcluirConta";
 import FiltersContas from "./FiltersContas";
+import Filter from "./Filter";
 
 export {
   Container,
@@ -26,4 +27,5 @@ export {
   Actions,
   ExcluirConta,
   FiltersContas,
+  Filter,
 }
