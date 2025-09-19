@@ -96,7 +96,7 @@ function Dashboard() {
     <div>
       <Filter subtitle="Dashboard">
         <Row gutter={[8, 8]}>
-          <Col xs={24} sm={12} md={8}>
+          <Col xs={24} sm={12} md={6}>
             <RangePicker
               size="large"
               format="DD/MM/YYYY"
@@ -104,7 +104,7 @@ function Dashboard() {
               style={{ width: "100%" }}
             />
           </Col>
-          <Col xs={24} sm={12} md={4}>
+          <Col xs={24} sm={12} md={3}>
             <Button
               type="primary"
               icon={<SearchOutlined />}
@@ -116,7 +116,7 @@ function Dashboard() {
               Buscar
             </Button>
           </Col>
-          <Col xs={24} sm={12} md={4}>
+          <Col xs={24} sm={12} md={3}>
             <AntdTooltip title="Exportar PDF">
               <Button
                 size="large"

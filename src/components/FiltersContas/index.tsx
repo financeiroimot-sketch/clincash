@@ -17,7 +17,7 @@ import {
   DownOutlined,
 } from "@ant-design/icons";
 import { Option, ContasFilter } from "src/utils/typings";
-import moment from "moment";
+import dayjs from "dayjs";
 
 const { RangePicker } = DatePicker;
 
@@ -65,13 +65,13 @@ function FiltersContas({
       }));
       return;
     }
+
     const [startDate, endDate] = dates;
-    const start = moment(startDate).format("DD/MM/YYYY");
-    const end = moment(endDate).format("DD/MM/YYYY");
+
     setFilters((prev) => ({
       ...prev,
-      dataVencimentoInicial: start,
-      dataVencimentoFinal: end,
+      dataVencimentoInicial: startDate ? dayjs(startDate).format("DD/MM/YYYY") : undefined,
+      dataVencimentoFinal: endDate ? dayjs(endDate).format("DD/MM/YYYY") : undefined,
     }));
   }
 
@@ -84,13 +84,13 @@ function FiltersContas({
       }));
       return;
     }
+
     const [startDate, endDate] = dates;
-    const start = moment(startDate).format("DD/MM/YYYY");
-    const end = moment(endDate).format("DD/MM/YYYY");
+
     setFilters((prev) => ({
       ...prev,
-      dataPagamentoInicial: start,
-      dataPagamentoFinal: end,
+      dataPagamentoInicial: startDate ? dayjs(startDate).format("DD/MM/YYYY") : undefined,
+      dataPagamentoFinal: endDate ? dayjs(endDate).format("DD/MM/YYYY") : undefined,
     }));
   }
 
@@ -277,6 +277,11 @@ function FiltersContas({
                 size="large"
                 format="DD/MM/YYYY"
                 placeholder={["Vencimento Inicial", "Vencimento Final"]}
+                value={
+                  filters?.dataVencimentoInicial && filters?.dataVencimentoFinal
+                    ? [dayjs(filters.dataVencimentoInicial, "DD/MM/YYYY"), dayjs(filters.dataVencimentoFinal, "DD/MM/YYYY")]
+                    : null
+                }
                 onChange={handleSetDatesVencimento}
                 style={{ width: "100%" }}
               />
@@ -288,6 +293,11 @@ function FiltersContas({
                 size="large"
                 format="DD/MM/YYYY"
                 placeholder={["Pagamento Inicial", "Pagamento Final"]}
+                value={
+                  filters?.dataPagamentoInicial && filters?.dataPagamentoFinal
+                    ? [dayjs(filters.dataPagamentoInicial, "DD/MM/YYYY"), dayjs(filters.dataPagamentoFinal, "DD/MM/YYYY")]
+                    : null
+                }
                 onChange={handleSetDatesPagamento}
                 style={{ width: "100%" }}
               />

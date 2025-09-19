@@ -174,7 +174,7 @@ function ContasReceber() {
               <Tooltip title="Exportar PDF">
                 <Button
                   size="large"
-                  onClick={() => exportPDF(ref, "contas-pagar", "Contas a Pagar", filters)}
+                  onClick={() => exportPDF(ref, "contas-receber", "Contas a Receber", filters)}
                   icon={<ExportOutlined />}
                   disabled={!searched}
                   style={{ width: "100%" }}
@@ -188,7 +188,12 @@ function ContasReceber() {
           {searched && (
             <div ref={ref}>
               <Table
-                columns={getColumns(getData, reset, handleCheckColumn, handleSearch)}
+                columns={getColumns(
+                  () => getData(filters),
+                  reset,
+                  handleCheckColumn,
+                  handleSearch
+                )}
                 data={contasFilter}
               />
             </div>

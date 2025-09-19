@@ -108,7 +108,7 @@ function ContasPagar() {
 
     const contasPagar = await getDataByCollection<Conta>("contasPagar");
 
-    const data = contasPagar.map((item: any) => {
+    const data = contasPagar.map(item => {
       const planoContas = planosContas?.find(plano => plano.id === item?.planoContasId);
       const pessoa = pessoas?.find(pessoa => pessoa.id === item?.razaoSocial);
       const planoContasDescricao = planoContas?.descricao;
@@ -118,7 +118,7 @@ function ContasPagar() {
     });
 
     if (filters) {
-      const result = handleFilter(data, filters);
+      const result = handleFilter(data as Conta[], filters);
       setSearched(true);
       setFilters(filters);
       setContas(result as Conta[]);
@@ -188,7 +188,12 @@ function ContasPagar() {
           {searched && (
             <div ref={ref}>
               <Table
-                columns={getColumns(getData, reset, handleCheckColumn, handleSearch)}
+                columns={getColumns(
+                  () => getData(filters),
+                  reset,
+                  handleCheckColumn,
+                  handleSearch
+                )}
                 data={contasFilter}
               />
             </div>
