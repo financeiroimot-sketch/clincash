@@ -18,8 +18,21 @@ function PlanoContas() {
   const [showForm, setShowForm] = useState<boolean>(false);
   const [expandedRowKeys, setExpandedRowKeys] = useState<Key[]>([]);
 
-  function orderData(data: any) {
-    return data.sort((a: any, b: any) => a.classificacao.localeCompare(b.classificacao));
+  function orderData(data: any[]) {
+    return data.sort((a, b) => {
+      const partsA = a.classificacao.split(".").map(Number);
+      const partsB = b.classificacao.split(".").map(Number);
+
+      const length = Math.max(partsA.length, partsB.length);
+      for (let i = 0; i < length; i++) {
+        const numA = partsA[i] ?? 0;
+        const numB = partsB[i] ?? 0;
+        if (numA !== numB) {
+          return numA - numB;
+        }
+      }
+      return 0;
+    });
   }
 
   function buildTree(data: PlanoConta[]) {
