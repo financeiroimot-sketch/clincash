@@ -6,7 +6,7 @@ import { CurrencyInput } from "react-currency-mask";
 import { toast } from "react-toastify";
 import { Dayjs } from "dayjs";
 import useQuery from "src/services/useQuery";
-import { CollectionName } from "src/utils/typings";
+import { CollectionName, Conta } from "src/utils/typings";
 
 const { useForm, Item } = Form;
 
@@ -17,9 +17,16 @@ interface InformarPagamentoProps {
   open: boolean;
   collection: CollectionName;
   handleClose: () => void;
+  updateAccount: (id: string, conta: Conta) => void;
 }
 
-function InformarPagamento({ id, open, collection, handleClose }: InformarPagamentoProps) {
+function InformarPagamento({
+  id,
+  open,
+  collection,
+  handleClose,
+  updateAccount,
+}: InformarPagamentoProps) {
 
   const [form] = useForm();
 
@@ -56,10 +63,12 @@ function InformarPagamento({ id, open, collection, handleClose }: InformarPagame
 
   async function handleUpdate(values: any) {
     const data = formatData(values);
-    const result = await updateData(id, { ...data, comprovante, nomeComprovante }, collection);
+    const body = { ...data, comprovante, nomeComprovante }
+    const result = await updateData(id, body, collection);
     if (result) {
       toast.success("Pagamento registrado com sucesso");
       handleCancel();
+      updateAccount(id, body as Conta);
       return;
     }
     toast.error("Erro ao registrar o pagamento");

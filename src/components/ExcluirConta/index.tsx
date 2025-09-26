@@ -7,15 +7,17 @@ interface ExcluirContaProps {
   open: boolean;
   collection: CollectionName;
   handleClose: () => void;
+  refetch: () => void;
 }
 
-function ExcluirConta({ id, open, collection, handleClose }: ExcluirContaProps) {
+function ExcluirConta({ id, open, collection, refetch, handleClose }: ExcluirContaProps) {
 
   const { deleteData } = useQuery();
 
   async function handleDelete() {
     await deleteData(id, collection);
     handleClose();
+    refetch();
   }
 
   return (

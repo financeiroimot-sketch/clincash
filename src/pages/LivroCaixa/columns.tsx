@@ -87,7 +87,7 @@ function getColumns(
           allowClear
           showSearch
           size="large"
-          defaultValue={record.razaoSocial}
+          defaultValue={pessoasOptions.some(item => item.value === record.razaoSocial) ? record.razaoSocial : null}
           options={pessoasOptions}
           onChange={(value, option) => handleChange(record.id, { razaoSocial: value, razaoSocialDescricao: option.label })}
           placeholder="Razão Social"
@@ -145,7 +145,7 @@ function getColumns(
         <Select
           allowClear
           showSearch
-          defaultValue={record.planoContasId}
+          defaultValue={planosOptions.some(item => item.value === record.planoContasId) ? record.planoContasId : null}
           onChange={(value, option) => handleChange(record.id, { planoContasId: value, planoContasDescricao: option.label })}
           optionFilterProp="label"
           options={planosOptions}

@@ -45,6 +45,7 @@ function formatStatusVencimento(text: string, color: string) {
 function getColummns(
   refetch: () => void,
   reset: () => void,
+  updateAccount: (id: string, conta: Conta) => void,
   handleCheckColumn: (columnName: string) => boolean,
   handleSearch: (search: string, key: any) => void,
 ) {
@@ -287,6 +288,7 @@ function getColummns(
           comprovante={record.comprovante}
           nomeComprovante={record.nomeComprovante}
           refetch={refetch}
+          updateAccount={updateAccount}
         />
       ),
     },

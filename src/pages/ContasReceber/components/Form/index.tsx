@@ -11,7 +11,7 @@ import localeData from "dayjs/plugin/localeData";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { FormFields } from "src/components";
 import useQuery from "src/services/useQuery";
-import { Pessoa, PlanoConta } from "src/utils/typings";
+import { Conta, Pessoa, PlanoConta } from "src/utils/typings";
 
 dayjs.extend(weekday);
 dayjs.extend(localeData);
@@ -23,10 +23,11 @@ type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
 interface FormProps {
   id: string | null;
+  addAccount: (conta: Conta) => void;
   setShowForm: (show: boolean) => void;
 }
 
-function Form({ id, setShowForm }: FormProps) {
+function Form({ id, addAccount, setShowForm }: FormProps) {
 
   const [form] = useForm();
   const navigate = useNavigate();
@@ -110,6 +111,7 @@ function Form({ id, setShowForm }: FormProps) {
     const result = await saveData({ ...data, comprovante, nomeComprovante }, "contasReceber");
     if (result) {
       toast.success("Conta salva com sucesso");
+      addAccount({ ...data, id: result, comprovante, nomeComprovante } as Conta);
       handleBack();
     }
   }

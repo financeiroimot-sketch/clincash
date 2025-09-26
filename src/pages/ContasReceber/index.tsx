@@ -18,6 +18,7 @@ function ContasReceber() {
   const ref = useRef(null);
 
   const [searched, setSearched] = useState<boolean>(false);
+  const [addedAccount, setAddedAccount] = useState<boolean>(false);
   const [filters, setFilters] = useState<ContasFilter>();
   const [pessoas, setPessoas] = useState<Pessoa[]>([]);
   const [planosContas, setPlanosContas] = useState<PlanoConta[]>([]);
@@ -86,6 +87,9 @@ function ContasReceber() {
   }
 
   async function getOptions() {
+    const usuario = await getUser();
+    setColunasAtivas(usuario?.colunasContasReceber);
+
     const [planosContas, pessoas] = await Promise.all([
       getDataByCollection<PlanoConta>("planosContas"),
       getDataByCollection<Pessoa>("pessoas"),
@@ -103,9 +107,6 @@ function ContasReceber() {
   }
 
   async function getData(filters?: ContasFilter) {
-    const usuario = await getUser();
-    setColunasAtivas(usuario?.colunasContasReceber);
-
     const contasReceber = await getDataByCollection<Conta>("contasReceber");
 
     const data = contasReceber.map(item => {
@@ -145,6 +146,31 @@ function ContasReceber() {
     return column ? !column.ativo : true;
   }
 
+  function addAccount(conta: Conta) {
+    const planoContas = planosContas?.find(plano => plano.id === conta.planoContasId);
+    const pessoa = pessoas?.find(pessoa => pessoa.id === conta.razaoSocial);
+    const result = {
+      ...conta,
+      planoContasDescricao: planoContas?.descricao,
+      razaoSocialDescricao: pessoa?.razaoSocial ?? "",
+      ...getStatusVencimento(conta),
+    }
+    setAddedAccount(true);
+    setContas(prevState => [...prevState, result as Conta]);
+    setContasFilter(prevState => [...prevState, result as Conta]);
+  }
+
+  function updateAccount(id: string, conta: Conta) {
+    const result = contas.map(item => {
+      if (item.id === id) {
+        return { ...item, ...conta }
+      }
+      return item;
+    });
+    setContas(result);
+    setContasFilter(result);
+  }
+
   useEffect(() => {
     setSearched(false);
     getOptions();
@@ -158,6 +184,7 @@ function ContasReceber() {
       {(params?.id || showForm) ? (
         <Form
           id={params?.id || null}
+          addAccount={addAccount}
           setShowForm={setShowForm}
         />
       ) : (
@@ -185,12 +212,13 @@ function ContasReceber() {
             }
           />
 
-          {searched && (
+          {(searched || addedAccount) && (
             <div ref={ref}>
               <Table
                 columns={getColumns(
                   () => getData(filters),
                   reset,
+                  updateAccount,
                   handleCheckColumn,
                   handleSearch
                 )}

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Tooltip } from "antd";
 import { DollarOutlined, FileTextOutlined, CloseOutlined } from "@ant-design/icons";
 import { EditButton, InformarPagamento, ExcluirConta } from "src/components";
-import { CollectionName, StatusPagamento } from "src/utils/typings";
+import { CollectionName, Conta, StatusPagamento } from "src/utils/typings";
 
 interface ActionsProps {
   id: string;
@@ -11,6 +11,7 @@ interface ActionsProps {
   comprovante?: string;
   nomeComprovante?: string;
   refetch: () => void;
+  updateAccount: (id: string, conta: Conta) => void;
 }
 
 function Actions({
@@ -20,6 +21,7 @@ function Actions({
   comprovante,
   nomeComprovante,
   refetch,
+  updateAccount,
 }: ActionsProps) {
 
   const [modalOpen, setModalOpen] = useState<boolean>(false);
@@ -59,19 +61,15 @@ function Actions({
         id={id}
         open={modalOpen}
         collection={collection}
-        handleClose={() => {
-          setModalOpen(false);
-          refetch();
-        }}
+        handleClose={() => setModalOpen(false)}
+        updateAccount={updateAccount}
       />
       <ExcluirConta
         id={id}
         open={modalDeleteOpen}
         collection={collection}
-        handleClose={() => {
-          setModalDeleteOpen(false);
-          refetch();
-        }}
+        handleClose={() => setModalDeleteOpen(false)}
+        refetch={refetch}
       />
       <div style={{ display: "flex", gap: 16 }}>
         <Tooltip title="Excluir">

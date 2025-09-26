@@ -46,9 +46,9 @@ function useQuery() {
   async function saveData(data: any, col: CollectionName) {
     showLoader();
     try {
-      await addDoc(collection(db, col), data);
+      const response = await addDoc(collection(db, col), data);
       hideLoader();
-      return true;
+      return response.id;
     } catch (error: any) {
       console.log(error);
       hideLoader();
