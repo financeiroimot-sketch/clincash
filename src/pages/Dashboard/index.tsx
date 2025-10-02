@@ -66,13 +66,13 @@ function Dashboard() {
 
       const receber = contasReceber.filter(item => {
         const data = moment(item.dataVencimento, "DD/MM/YYYY");
-        return data.isBetween(inicio, fim);
+        return data.isBetween(inicio, fim, undefined, "[]");
       });
       setContasReceber(receber.map(item => ({ ...item, tipoConta: "contasReceber" })));
 
       const pagar = contasPagar.filter(item => {
         const data = moment(item.dataVencimento, "DD/MM/YYYY");
-        return data.isBetween(inicio, fim);
+        return data.isBetween(inicio, fim, undefined, "[]");
       });
       setContasPagar(pagar.map(item => ({ ...item, tipoConta: "contasPagar" })));
       setSearched(true);

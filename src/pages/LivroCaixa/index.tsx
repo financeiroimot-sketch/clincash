@@ -72,11 +72,11 @@ function Empresas() {
       const fim = moment(periodoFim, "DD/MM/YYYY");
 
       const tipoContaPagar = contasPagar
-        .filter(item => moment(item.dataVencimento, "DD/MM/YYYY").isBetween(inicio, fim))
+        .filter(item => moment(item.dataVencimento, "DD/MM/YYYY").isBetween(inicio, fim, undefined, "[]"))
         .map(item => ({ ...item, tipoConta: "contasPagar", editing: false }));
 
       const tipoContaReceber = contasReceber
-        .filter(item => moment(item.dataVencimento, "DD/MM/YYYY").isBetween(inicio, fim))
+        .filter(item => moment(item.dataVencimento, "DD/MM/YYYY").isBetween(inicio, fim, undefined, "[]"))
         .map(item => ({ ...item, tipoConta: "contasReceber", editing: false }));
 
       const data = [...tipoContaPagar, ...tipoContaReceber]
