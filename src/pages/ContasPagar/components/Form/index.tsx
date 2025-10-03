@@ -274,6 +274,17 @@ function Form({ id, addAccount, setShowForm }: FormProps) {
               format="DD/MM/YYYY"
             />
           </Item>
+
+          <Item
+            label="Descrição"
+            name="descricao"
+            style={inputStyle}
+          >
+            <Input
+              size="large"
+              placeholder="Descrição"
+            />
+          </Item>
         </>
       ),
     },

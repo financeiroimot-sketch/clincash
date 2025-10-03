@@ -177,6 +177,13 @@ function getColummns(
       ),
     },
     {
+      title: "Descrição",
+      dataIndex: "descricao",
+      key: "descricao",
+      hidden: handleCheckColumn("Descrição"),
+      render: (value: number) => <span>{value ?? "-"}</span>,
+    },
+    {
       title: "Valor",
       dataIndex: "valor",
       key: "valor",

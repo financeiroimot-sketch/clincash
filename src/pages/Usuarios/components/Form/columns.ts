@@ -17,6 +17,10 @@ export const contasPagar = [
   },
   {
     ativo: true,
+    coluna: "Descrição"
+  },
+  {
+    ativo: true,
     coluna: "Valor"
   },
   {
