@@ -18,6 +18,7 @@ dayjs.extend(localeData);
 dayjs.extend(customParseFormat);
 
 const { useForm, Item } = AntdForm;
+const { TextArea } = Input;
 
 type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
@@ -280,7 +281,9 @@ function Form({ id, addAccount, setShowForm }: FormProps) {
             name="descricao"
             style={inputStyle}
           >
-            <Input
+            <TextArea
+              rows={3}
+              maxLength={150}
               size="large"
               placeholder="Descrição"
             />
